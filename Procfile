@@ -1,1 +1,1 @@
-worker: python xo.py
+worker: python stark-spatial-ui.html.py
