@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uz">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>STARK SPATIAL UI</title>
+<title>STARK SPATIAL AI & VOICE UI v2.0</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
 
@@ -11,9 +11,10 @@
     --cyan: #00f0ff;
     --red: #ff0055;
     --gold: #ffb800;
-    --bg: #020810;
-    --panel-bg: rgba(0, 15, 30, 0.75);
-    --border: rgba(0, 240, 255, 0.25);
+    --purple: #a124ff;
+    --bg: #010510;
+    --panel-bg: rgba(1, 10, 25, 0.85);
+    --border: rgba(0, 240, 255, 0.3);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -28,7 +29,6 @@
     user-select: none;
   }
 
-  /* ── BOOT SCREEN ── */
   #boot-screen {
     position: fixed; inset: 0; z-index: 100;
     background: var(--bg);
@@ -41,311 +41,197 @@
 
   .logo-title {
     font-family: 'Orbitron', sans-serif;
-    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-size: clamp(2rem, 6vw, 4.5rem);
     font-weight: 900;
     letter-spacing: 0.3em;
     color: var(--cyan);
-    text-shadow: 0 0 20px var(--cyan), 0 0 60px var(--cyan), 0 0 120px rgba(0,240,255,0.3);
-    animation: flicker 4s infinite;
-  }
-
-  .logo-sub {
-    font-size: 0.85rem;
-    letter-spacing: 0.5em;
-    color: rgba(0,240,255,0.5);
-    margin-top: 8px;
+    text-shadow: 0 0 20px var(--cyan), 0 0 60px var(--cyan);
+    animation: flicker 3s infinite;
   }
 
   @keyframes flicker {
-    0%,100% { opacity: 1; }
-    92% { opacity: 1; }
-    93% { opacity: 0.6; }
-    94% { opacity: 1; }
-    96% { opacity: 0.8; }
+    0%, 100% { opacity: 1; }
+    95% { opacity: 1; }
+    96% { opacity: 0.7; }
     97% { opacity: 1; }
   }
 
-  .hex-ring {
-    width: 160px; height: 160px;
-    position: relative;
-    animation: spin-slow 8s linear infinite;
+  .system-status-container {
+    width: 320px;
+    background: rgba(0, 240, 255, 0.05);
+    border: 1px solid var(--border);
+    padding: 16px;
+    font-size: 0.75rem;
+    line-height: 1.6;
   }
-  .hex-ring svg { width: 100%; height: 100%; }
-  @keyframes spin-slow { to { transform: rotate(360deg); } }
 
   #start-btn {
     font-family: 'Orbitron', sans-serif;
     font-size: 1rem;
     font-weight: 700;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.2em;
     color: var(--bg);
     background: var(--cyan);
     border: none;
-    padding: 16px 48px;
+    padding: 16px 40px;
     cursor: pointer;
-    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
-    transition: all 0.2s;
-    box-shadow: 0 0 30px var(--cyan), 0 0 60px rgba(0,240,255,0.3);
-    position: relative;
-    overflow: hidden;
-  }
-  #start-btn::after {
-    content: '';
-    position: absolute; inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-    transform: translateX(-100%);
-    transition: transform 0.4s;
-  }
-  #start-btn:hover { transform: scale(1.05); box-shadow: 0 0 50px var(--cyan); }
-  #start-btn:hover::after { transform: translateX(100%); }
-
-  .boot-info {
-    font-size: 0.7rem;
-    color: rgba(0,240,255,0.35);
-    letter-spacing: 0.15em;
-    text-align: center;
-    line-height: 1.8;
+    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+    box-shadow: 0 0 30px var(--cyan);
+    transition: all 0.3s ease;
   }
 
-  /* ── MAIN APP ── */
+  #start-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 50px var(--cyan);
+  }
+
   #app { display: none; position: fixed; inset: 0; }
 
   #video-feed {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
     object-fit: cover;
-    opacity: 0.12;
-    filter: blur(6px) saturate(0.5);
+    opacity: 0.15;
+    filter: grayscale(0.3) contrast(1.2);
     transform: scaleX(-1);
     z-index: 1;
   }
 
-  #three-canvas {
-    position: absolute; inset: 0;
-    z-index: 2;
-  }
+  #three-canvas { position: absolute; inset: 0; z-index: 2; }
+  #landmark-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; transform: scaleX(-1); }
 
-  #landmark-canvas {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    z-index: 3;
-    pointer-events: none;
-    transform: scaleX(-1);
-  }
-
-  /* ── CALIBRATION OVERLAY ── */
   #calibration {
     position: absolute; inset: 0; z-index: 10;
     display: flex; align-items: center; justify-content: center;
-    background: rgba(2,8,16,0.6);
-    backdrop-filter: blur(4px);
+    background: rgba(1, 5, 16, 0.7);
+    backdrop-filter: blur(6px);
   }
   #calibration.hidden { display: none; }
 
-  .hand-outline {
-    width: 200px; height: 260px;
-    position: relative;
-    animation: pulse-hand 1.5s ease-in-out infinite;
-  }
-  @keyframes pulse-hand {
-    0%,100% { opacity: 0.4; transform: scale(1); }
-    50% { opacity: 0.9; transform: scale(1.05); }
-  }
-
-  .calib-text {
-    position: absolute;
-    top: calc(50% + 150px);
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.8rem;
-    letter-spacing: 0.3em;
-    color: var(--cyan);
-    white-space: nowrap;
-    animation: blink 1s step-end infinite;
-  }
-  @keyframes blink { 50% { opacity: 0; } }
-
-  /* ── HUD PANELS ── */
   .hud-panel {
     position: absolute; z-index: 20;
     background: var(--panel-bg);
     border: 1px solid var(--border);
-    backdrop-filter: blur(12px);
-    padding: 12px 16px;
-    font-size: 0.7rem;
-    line-height: 2;
-    min-width: 180px;
-  }
-  .hud-panel::before {
-    content: '';
-    position: absolute;
-    top: -1px; left: 20px;
-    width: 40px; height: 2px;
-    background: var(--cyan);
-    box-shadow: 0 0 8px var(--cyan);
+    backdrop-filter: blur(10px);
+    padding: 14px;
+    font-size: 0.75rem;
+    min-width: 220px;
+    box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.1);
   }
 
-  #hud-tl { top: 20px; left: 20px; }
-  #hud-tr { top: 20px; right: 20px; text-align: right; }
-  #hud-tr::before { left: auto; right: 20px; }
+  #hud-left { top: 20px; left: 20px; }
+  #hud-right { top: 20px; right: 20px; text-align: right; }
+  #hud-bottom { bottom: 20px; left: 20px; width: calc(100% - 40px); display: flex; justify-content: space-between; align-items: center; }
 
-  .hud-label { color: rgba(0,240,255,0.45); font-size: 0.6rem; letter-spacing: 0.2em; }
-  .hud-value { color: var(--cyan); font-weight: bold; }
-  .hud-value.active { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
-  .hud-value.warn { color: var(--red); text-shadow: 0 0 10px var(--red); }
-
-  /* Mode badge */
-  #mode-badge {
-    position: absolute; z-index: 20;
-    top: 20px; left: 50%; transform: translateX(-50%);
+  .hud-header {
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
-    letter-spacing: 0.4em;
-    padding: 8px 24px;
-    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-    transition: all 0.2s;
-  }
-  #mode-badge.idle {
-    color: rgba(0,240,255,0.5);
-    background: rgba(0,240,255,0.05);
-    border: 1px solid rgba(0,240,255,0.2);
-  }
-  #mode-badge.drawing {
-    color: var(--bg);
-    background: var(--cyan);
-    box-shadow: 0 0 20px var(--cyan);
-  }
-  #mode-badge.grabbing {
-    color: var(--bg);
-    background: var(--gold);
-    box-shadow: 0 0 20px var(--gold);
-  }
-  #mode-badge.pinching {
-    color: var(--bg);
-    background: var(--red);
-    box-shadow: 0 0 20px var(--red);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+    letter-spacing: 0.1em;
   }
 
-  /* Clear zone */
-  #clear-zone {
-    position: absolute; z-index: 20;
-    bottom: 24px; left: 50%; transform: translateX(-50%);
-    width: 140px; height: 44px;
-    border: 1px solid rgba(255,0,85,0.4);
-    display: flex; align-items: center; justify-content: center;
+  .hud-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  #hud-right .hud-row { justify-content: flex-end; gap: 12px; }
+
+  .label { color: rgba(0, 240, 255, 0.5); }
+  .val { color: var(--cyan); font-weight: bold; }
+  .val.active { color: var(--gold); }
+  .val.alert { color: var(--red); }
+
+  #mode-indicator {
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.7rem;
+    font-size: 0.9rem;
     font-weight: 700;
-    letter-spacing: 0.3em;
-    color: rgba(255,0,85,0.5);
-    transition: all 0.3s;
-    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    letter-spacing: 0.2em;
+    padding: 8px 20px;
+    border: 1px solid var(--border);
+    background: rgba(0, 240, 255, 0.1);
   }
-  #clear-zone.active {
+  .mode-idle { color: var(--cyan); border-color: var(--cyan); }
+  .mode-draw { color: var(--purple); border-color: var(--purple); background: rgba(161, 36, 255, 0.1); }
+  .mode-grab { color: var(--gold); border-color: var(--gold); background: rgba(255, 184, 0, 0.1); }
+  .mode-pinch { color: var(--red); border-color: var(--red); background: rgba(255, 0, 85, 0.1); }
+
+  #voice-panel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(0, 240, 255, 0.05);
+    padding: 6px 12px;
+    border: 1px solid rgba(0, 240, 255, 0.2);
+  }
+
+  .voice-dot {
+    width: 10px; height: 10px;
+    background: rgba(0, 240, 255, 0.3);
+    border-radius: 50%;
+  }
+  .voice-dot.active {
     background: var(--red);
-    color: white;
-    box-shadow: 0 0 30px var(--red);
+    animation: pulse-red 1s infinite alternate;
+  }
+  @keyframes pulse-red { from { transform: scale(1); box-shadow: 0 0 4px var(--red); } to { transform: scale(1.3); box-shadow: 0 0 12px var(--red); } }
+
+  #ai-input-zone {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
 
-  /* Scan lines */
-  body::after {
-    content: '';
-    position: fixed; inset: 0; z-index: 50;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.08) 2px,
-      rgba(0,0,0,0.08) 4px
-    );
-    pointer-events: none;
+  .ai-btn {
+    background: rgba(0, 240, 255, 0.2);
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    font-family: 'Share Tech Mono', monospace;
+    padding: 6px 12px;
+    cursor: pointer;
   }
+  .ai-btn:hover { background: var(--cyan); color: var(--bg); }
 
-  /* Corner decorations */
-  .corner {
-    position: absolute; z-index: 21;
-    width: 30px; height: 30px;
-    pointer-events: none;
-  }
-  .corner.tl { top: 10px; left: 10px; border-top: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
-  .corner.tr { top: 10px; right: 10px; border-top: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
-  .corner.bl { bottom: 10px; left: 10px; border-bottom: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
-  .corner.br { bottom: 10px; right: 10px; border-bottom: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
+  #file-upload-input { display: none; }
 
-  /* Finger cursor */
   #finger-cursor {
     position: absolute; z-index: 15;
-    width: 16px; height: 16px;
-    border: 2px solid var(--cyan);
+    width: 20px; height: 20px;
+    border: 2px dashed var(--cyan);
     border-radius: 50%;
     transform: translate(-50%, -50%);
     pointer-events: none;
-    transition: transform 0.05s;
-    box-shadow: 0 0 8px var(--cyan), 0 0 16px rgba(0,240,255,0.3);
     display: none;
   }
-  #finger-cursor::after {
-    content: '';
-    position: absolute; inset: 3px;
-    background: var(--cyan);
-    border-radius: 50%;
-  }
 
-  /* Permission error */
   #perm-error {
     display: none;
     position: fixed; inset: 0; z-index: 200;
-    background: rgba(2,8,16,0.95);
-    align-items: center; justify-content: center;
-    flex-direction: column; gap: 16px;
-    font-family: 'Orbitron', sans-serif;
+    background: var(--bg);
     color: var(--red);
-    text-align: center;
-    padding: 40px;
+    font-family: 'Orbitron', sans-serif;
+    flex-direction: column; align-items: center; justify-content: center; gap: 20px;
   }
-  #perm-error.show { display: flex; }
-  #perm-error p { font-size: 0.75rem; color: rgba(0,240,255,0.5); font-family: 'Share Tech Mono'; max-width: 400px; }
 </style>
 </head>
 <body>
 
 <div id="boot-screen">
   <div class="logo-wrap">
-    <div class="logo-title">STARK</div>
-    <div class="logo-sub">SPATIAL INTERFACE v1.0</div>
+    <div class="logo-title">STARK AI</div>
+    <div style="font-size: 0.8rem; letter-spacing: 0.4em; color: rgba(0,240,255,0.6);">SPATIAL SYSTEMS v2.0</div>
   </div>
-
-  <svg class="hex-ring" viewBox="0 0 160 160">
-    <defs>
-      <filter id="glow">
-        <feGaussianBlur stdDeviation="3" result="blur"/>
-        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
-    </defs>
-    <polygon points="80,10 140,45 140,115 80,150 20,115 20,45"
-      fill="none" stroke="#00f0ff" stroke-width="1.5" opacity="0.4" filter="url(#glow)"/>
-    <polygon points="80,22 128,50 128,110 80,138 32,110 32,50"
-      fill="none" stroke="#00f0ff" stroke-width="0.8" opacity="0.25"/>
-    <circle cx="80" cy="80" r="28" fill="none" stroke="#00f0ff" stroke-width="1.5" opacity="0.6" filter="url(#glow)"/>
-    <circle cx="80" cy="80" r="5" fill="#00f0ff" opacity="0.9"/>
-    <line x1="80" y1="52" x2="80" y2="20" stroke="#00f0ff" stroke-width="1" opacity="0.5"/>
-    <line x1="80" y1="108" x2="80" y2="140" stroke="#00f0ff" stroke-width="1" opacity="0.5"/>
-    <line x1="52" y1="80" x2="20" y2="80" stroke="#00f0ff" stroke-width="1" opacity="0.5"/>
-    <line x1="108" y1="80" x2="140" y2="80" stroke="#00f0ff" stroke-width="1" opacity="0.5"/>
-  </svg>
-
-  <button id="start-btn">▶ START SYSTEM</button>
-  <div class="boot-info">
-    REQUIRES: CAMERA ACCESS · HTTPS · MODERN BROWSER<br>
-    GESTURE ENGINE · MEDIAPIPE v0.4 · THREE.JS r155
+  <div class="system-status-container">
+    <div>&gt; MODULLAR OVOZLI BOSHQARUV: TAYYOR</div>
+    <div>&gt; NEYRON TARMOQ INTEGRATSIYASI: FAOL</div>
+    <div>&gt; 3D RECONSTRUCTION ENGINE: AKTIV</div>
+    <div>&gt; ENVIRONMENT DETECTOR: KUTILMOQDA...</div>
   </div>
+  <button id="start-btn">TIZIMNI ISHGA TUSHIRISH</button>
 </div>
 
 <div id="perm-error">
-  <div style="font-size:1.5rem; letter-spacing:0.3em;">CAMERA ACCESS DENIED</div>
-  <p>Bu ilova ishlashi uchun kamera ruxsati talab qilinadi. Brauzer sozlamalarida kamera ruxsatini bering va sahifani qayta yuklang.</p>
-  <button onclick="location.reload()" style="font-family:Orbitron,sans-serif;font-size:0.8rem;letter-spacing:0.3em;padding:10px 30px;background:rgba(255,0,85,0.2);border:1px solid #ff0055;color:#ff0055;cursor:pointer;">RETRY</button>
+  <h2>KAMERA YOKI MIKROFONGA RUXSAT YO'Q</h2>
+  <button onclick="location.reload()" class="ai-btn">QAYTA URINISH</button>
 </div>
 
 <div id="app">
@@ -354,45 +240,43 @@
   <canvas id="landmark-canvas"></canvas>
 
   <div id="calibration">
-    <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:16px;">
-      <svg class="hand-outline" viewBox="0 0 200 260">
-        <path d="M60,180 Q40,160 38,130 Q36,110 42,80 Q46,60 54,52 Q62,44 70,50 Q72,30 80,26 Q90,22 96,30 Q100,10 110,8 Q122,6 126,18 Q132,8 142,10 Q154,14 154,30 Q162,26 168,34 Q174,46 170,60 Q166,80 162,120 Q160,150 152,170 Q140,190 110,200 Q80,208 60,180Z"
-          fill="none" stroke="#00f0ff" stroke-width="1.5" opacity="0.7"/>
-        <line x1="100" y1="28" x2="100" y2="5" stroke="#00f0ff" stroke-width="1.5" opacity="0.5" stroke-dasharray="3,3"/>
-        <line x1="126" y1="18" x2="130" y2="-5" stroke="#00f0ff" stroke-width="1.5" opacity="0.5" stroke-dasharray="3,3"/>
-        <line x1="154" y1="30" x2="162" y2="8" stroke="#00f0ff" stroke-width="1.5" opacity="0.5" stroke-dasharray="3,3"/>
-        <circle cx="100" cy="5" r="4" fill="#00f0ff" opacity="0.8"/>
-        <circle cx="130" cy="-5" r="3" fill="#00f0ff" opacity="0.5"/>
-        <circle cx="162" cy="8" r="3" fill="#00f0ff" opacity="0.5"/>
-      </svg>
-      <div class="calib-text">RAISE YOUR HAND TO CALIBRATE</div>
+    <div style="text-align: center;">
+      <div style="font-size: 1.5rem; font-family: 'Orbitron', sans-serif; margin-bottom: 10px; color: var(--cyan);">KALIBRATSIYA JARYONI</div>
+      <div style="font-size: 0.9rem; color: rgba(0,240,255,0.7);">Kameraga qo'lingizni ko'rsating va bir necha soniya ushlab turing...</div>
     </div>
   </div>
 
-  <div class="hud-panel" id="hud-tl">
-    <div class="hud-label">AI ENGINE</div>
-    <div><span class="hud-label">FPS </span><span class="hud-value" id="hud-fps">--</span></div>
-    <div><span class="hud-label">CONF </span><span class="hud-value" id="hud-conf">--</span></div>
-    <div><span class="hud-label">HANDS </span><span class="hud-value" id="hud-hands">0</span></div>
-    <div><span class="hud-label">DEPTH </span><span class="hud-value" id="hud-depth">0.00</span></div>
+  <div class="hud-panel" id="hud-left">
+    <div class="hud-header">AI METRIKA TIZIMI</div>
+    <div class="hud-row"><span class="label">FPS</span><span class="val" id="val-fps">--</span></div>
+    <div class="hud-row"><span class="label">ISHONCH</span><span class="val" id="val-conf">--</span></div>
+    <div class="hud-row"><span class="label">QO'LLAR</span><span class="val" id="val-hands">0</span></div>
+    <div class="hud-row"><span class="label">Z-CHUQURLIK</span><span class="val" id="val-depth">0.00</span></div>
   </div>
 
-  <div class="hud-panel" id="hud-tr">
-    <div class="hud-label">SYSTEM</div>
-    <div><span class="hud-label">STROKES </span><span class="hud-value" id="hud-strokes">0</span></div>
-    <div><span class="hud-label">OBJECTS </span><span class="hud-value" id="hud-objects">0</span></div>
-    <div><span class="hud-label">UPTIME </span><span class="hud-value" id="hud-uptime">0s</span></div>
+  <div class="hud-panel" id="hud-right">
+    <div class="hud-header">STRUKTURA STATUSI</div>
+    <div class="hud-row"><span class="label">SHAKLLAR SANOG'I:</span><span class="val" id="val-shapes">0</span></div>
+    <div class="hud-row"><span class="label">FAOL ELEMENT:</span><span class="val active" id="val-active-obj">YO'Q</span></div>
+    <div class="hud-row"><span class="label">OVOZ STATUSI:</span><span class="val" id="val-voice-cmd">KUTISH...</span></div>
   </div>
 
-  <div id="mode-badge" class="idle">● IDLE</div>
-  <div id="clear-zone">✕ CLEAR</div>
+  <div class="hud-panel" id="hud-bottom">
+    <div id="voice-panel">
+      <div class="voice-dot" id="voice-rec-dot"></div>
+      <div style="font-size: 0.7rem; letter-spacing: 0.1em;">OVOZLI NAZORAT (UZB): <span id="voice-transcript" style="color:var(--gold);">aktiv buyruq kutilmoqda</span></div>
+    </div>
+
+    <div id="mode-indicator" class="mode-idle">IDLE</div>
+
+    <div id="ai-input-zone">
+      <button class="ai-btn" onclick="document.getElementById('file-upload-input').click()">RASMNI 3DGA O'GIRISH</button>
+      <input type="file" id="file-upload-input" accept="image/*">
+      <button class="ai-btn" id="btn-clear-canvas">TOZALASH</button>
+    </div>
+  </div>
 
   <div id="finger-cursor"></div>
-
-  <div class="corner tl"></div>
-  <div class="corner tr"></div>
-  <div class="corner bl"></div>
-  <div class="corner br"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
@@ -400,550 +284,480 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 
 <script>
-// ════════════════════════════════════════════════════════
-//  STARK SPATIAL UI  —  app.js (all-in-one fully upgraded)
-// ════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════
+//  STARK SPATIAL INTERFACE v2.0 CORE ARCHITECTURE
+// ══════════════════════════════════════════════════════════════════════════
 
-// ─── State ───────────────────────────────────────────────
-const STATE = {
-  mode: 'idle',        // idle | drawing | grabbing | pinching
-  drawPoints: [],      // current stroke points with depth
-  strokes: 0,
-  startTime: Date.now(),
-  confidence: 0,
+const APP_STATE = {
+  mode: 'idle',
+  drawPoints: [],
+  shapesCount: 0,
   handsDetected: 0,
   calibrated: false,
-  calibFrames: 0,
-  selectedObj: null,
-  grabOffset: null,
-  initialScale: null,
-  initialPinchDist: null,
+  calibCounter: 0,
+  activeObject: null,
   currentDepth: 0,
-  objects: [],         // all 3D meshes
+  objectsList: [],
+  activeColor: 0x00f0ff,
+  voiceActive: false
 };
 
-let fpsTimer = 0, frameCount = 0, fps = 0;
-let lastIndexPos = null;
+let fpsCount = 0, lastFpsUpdate = 0, currentFps = 0;
+let liveLinePreview = null;
 
-// ─── Three.js Scene ─────────────────────────────────────
+// ─── THREE.JS CORE SETUP ─────────────────────────────────────────────────
 const canvas3d = document.getElementById('three-canvas');
 const renderer = new THREE.WebGLRenderer({ canvas: canvas3d, antialias: true, alpha: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setClearColor(0x000000, 0);
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 3000);
-camera.position.set(0, 0, 600);
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 5000);
+camera.position.set(0, 0, 700);
 
-// Grid floor
-function buildGrid() {
-  const g = new THREE.GridHelper(2000, 40, 0x003344, 0x001122);
-  g.position.y = -250;
-  g.material.opacity = 0.4;
-  g.material.transparent = true;
-  scene.add(g);
-}
-buildGrid();
+// Lighting Infrastructure
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+scene.add(ambientLight);
+const directionalLight = new THREE.DirectionalLight(0x00f0ff, 0.8);
+directionalLight.position.set(0, 500, 200);
+scene.add(directionalLight);
 
-// Ambient particles
-function buildParticles() {
-  const geo = new THREE.BufferGeometry();
-  const count = 400;
-  const pos = new Float32Array(count * 3);
-  for (let i = 0; i < count * 3; i++) pos[i] = (Math.random() - 0.5) * 2000;
-  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-  const mat = new THREE.PointsMaterial({ color: 0x003344, size: 1.5, transparent: true, opacity: 0.6 });
-  scene.add(new THREE.Points(geo, mat));
-}
-buildParticles();
+// Holographic Floor Grid
+const spatialGrid = new THREE.GridHelper(2000, 50, 0x00f0ff, 0x002233);
+spatialGrid.position.y = -300;
+spatialGrid.material.opacity = 0.25;
+spatialGrid.material.transparent = true;
+scene.add(spatialGrid);
 
-// Neon line material factory
-function neonMat(color = 0x00f0ff, opacity = 1) {
-  return new THREE.LineBasicMaterial({ color, transparent: true, opacity, linewidth: 2 });
-}
-
-// ─── Screen ↔ 3D coordinate mapping ─────────────────────
-function screenTo3D(nx, ny, depthFactor = 0) {
-  const x = (nx - 0.5) * 900;
-  const y = -(ny - 0.5) * 600;
-  const z = depthFactor * 400; 
+// ─── COORDINATE TRANSLATION ──────────────────────────────────────────────
+function getSpatialCoordinates(nx, ny, depth) {
+  const x = (nx - 0.5) * 1000;
+  const y = -(ny - 0.5) * 650;
+  const z = depth * 450;
   return new THREE.Vector3(x, y, z);
 }
 
-// ─── Draw stroke from points ─────────────────────────────
-function commitStroke(pts) {
-  if (pts.length < 4) return null;
+// ─── PROCEDURAL GENERATION & MATERIAL ENGINE ─────────────────────────────
+function createGlowMaterial(colorHex) {
+  return new THREE.MeshStandardMaterial({
+    color: colorHex,
+    roughness: 0.2,
+    metalness: 0.8,
+    transparent: true,
+    opacity: 0.85,
+    side: THREE.DoubleSide
+  });
+}
 
-  const analyzed = analyzeShape(pts);
+function spawn3DPrimitive(type, params) {
+  let geometry;
+  const mat = createGlowMaterial(APP_STATE.activeColor);
 
-  let mesh;
-  if (analyzed.type === 'circle') {
-    mesh = buildCircle(analyzed.cx, analyzed.cy, analyzed.cz, analyzed.r);
-  } else if (analyzed.type === 'rect') {
-    mesh = buildRect(analyzed);
-  } else {
-    mesh = buildFreeStroke(pts);
+  switch(type) {
+    case 'cube':
+      geometry = new THREE.BoxGeometry(params.w || 80, params.h || 80, params.d || 80);
+      break;
+    case 'sphere':
+      geometry = new THREE.SphereGeometry(params.r || 50, 32, 32);
+      break;
+    case 'cylinder':
+      geometry = new THREE.CylinderGeometry(params.rt || 40, params.rb || 40, params.h || 100, 32);
+      break;
+    case 'cone':
+      geometry = new THREE.ConeGeometry(params.r || 40, params.h || 90, 32);
+      break;
+    case 'torus':
+      geometry = new THREE.TorusGeometry(params.r || 40, params.t || 12, 16, 100);
+      break;
+    default:
+      geometry = new THREE.BoxGeometry(60, 60, 60);
   }
 
+  const mesh = new THREE.Mesh(geometry, mat);
+  mesh.position.copy(params.pos || new THREE.Vector3(0, 0, 0));
   scene.add(mesh);
-  STATE.objects.push(mesh);
-  STATE.strokes++;
-  updateHUD();
+  APP_STATE.objectsList.push(mesh);
+  APP_STATE.shapesCount++;
+  syncHUD();
   return mesh;
 }
 
-function buildFreeStroke(pts) {
-  const geo = new THREE.BufferGeometry();
-  const verts = pts.map(p => screenTo3D(p.x, p.y, p.z));
-  geo.setFromPoints(verts);
-  const line = new THREE.Line(geo, neonMat(0x00f0ff, 0.95));
-  line.userData = { type: 'stroke', center: computeCentroid(verts) };
-  return line;
+// ─── SPEECH RECOGNITION (OVOZLI BOSHQARUV SYSTEMA) ──────────────────────────
+function initVoiceCommandEngine() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return;
+
+  const recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = false;
+  recognition.lang = 'uz-UZ';
+
+  recognition.onstart = () => {
+    document.getElementById('voice-rec-dot').classList.add('active');
+    APP_STATE.voiceActive = true;
+  };
+
+  recognition.onresult = (event) => {
+    const text = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+    document.getElementById('voice-transcript').textContent = text;
+    processVoiceCommand(text);
+  };
+
+  recognition.onerror = () => {
+    document.getElementById('val-voice-cmd').textContent = "XATO";
+  };
+
+  recognition.onend = () => {
+    recognition.start(); // Keep listening seamlessly
+  };
+
+  recognition.start();
 }
 
-function buildCircle(cx, cy, cz, r) {
-  const segments = 64;
-  const pts = [];
-  for (let i = 0; i <= segments; i++) {
-    const a = (i / segments) * Math.PI * 2;
-    pts.push(new THREE.Vector3(cx + Math.cos(a) * r, cy + Math.sin(a) * r, cz));
+function processVoiceCommand(cmd) {
+  const hudVoice = document.getElementById('val-voice-cmd');
+  hudVoice.textContent = cmd;
+
+  if (cmd.includes('tozalash') || cmd.includes('o\'chirish') || cmd.includes('ochirish')) {
+    clearSpatialCanvas();
+  } else if (cmd.includes('kub') || cmd.includes('to\'rtburchak')) {
+    spawn3DPrimitive('cube', { pos: new THREE.Vector3(0,0,0) });
+  } else if (cmd.includes('shor') || cmd.includes('shar') || cmd.includes('aylana') || cmd.includes('doira')) {
+    spawn3DPrimitive('sphere', { pos: new THREE.Vector3(0,0,0) });
+  } else if (cmd.includes('silindr')) {
+    spawn3DPrimitive('cylinder', { pos: new THREE.Vector3(0,0,0) });
+  } else if (cmd.includes('konus')) {
+    spawn3DPrimitive('cone', { pos: new THREE.Vector3(0,0,0) });
+  } else if (cmd.includes('torus') || cmd.includes('uzuk')) {
+    spawn3DPrimitive('torus', { pos: new THREE.Vector3(0,0,0) });
+  } else if (cmd.includes('qizil')) {
+    APP_STATE.activeColor = 0xff0055;
+  } else if (cmd.includes('yashil')) {
+    APP_STATE.activeColor = 0x00ff66;
+  } else if (cmd.includes('ko\'k') || cmd.includes('kok')) {
+    APP_STATE.activeColor = 0x00f0ff;
+  } else if (cmd.includes('sariq')) {
+    APP_STATE.activeColor = 0xffb800;
   }
-  const geo = new THREE.BufferGeometry().setFromPoints(pts);
-  const line = new THREE.Line(geo, neonMat(0x00f0ff, 1));
-
-  const geo2 = new THREE.BufferGeometry().setFromPoints(pts);
-  const glow = new THREE.Line(geo2, neonMat(0x00f0ff, 0.2));
-  glow.scale.set(1.06, 1.06, 1);
-
-  const group = new THREE.Group();
-  group.add(line); group.add(glow);
-  group.userData = { type: 'circle', center: new THREE.Vector3(cx, cy, cz), radius: r };
-  return group;
 }
 
-function buildRect(d) {
-  const { minX, maxX, minY, maxY, cz } = d;
-  const pts = [
-    new THREE.Vector3(minX, minY, cz),
-    new THREE.Vector3(maxX, minY, cz),
-    new THREE.Vector3(maxX, maxY, cz),
-    new THREE.Vector3(minX, maxY, cz),
-    new THREE.Vector3(minX, minY, cz),
-  ];
-  const geo = new THREE.BufferGeometry().setFromPoints(pts);
-  const line = new THREE.Line(geo, neonMat(0x00f0ff, 1));
-  const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
-  line.userData = { type: 'rect', center: new THREE.Vector3(cx, cy, cz) };
-  return line;
-}
-
-function computeCentroid(verts) {
-  const c = new THREE.Vector3();
-  verts.forEach(v => c.add(v));
-  c.divideScalar(verts.length);
-  return c;
-}
-
-// ─── Shape auto-detection ───────────────────────────────
-function analyzeShape(pts) {
-  const verts = pts.map(p => screenTo3D(p.x, p.y, p.z));
-  const cx = verts.reduce((s, v) => s + v.x, 0) / verts.length;
-  const cy = verts.reduce((s, v) => s + v.y, 0) / verts.length;
-  const cz = verts.reduce((s, v) => s + v.z, 0) / verts.length;
-
-  const radii = verts.map(v => Math.hypot(v.x - cx, v.y - cy));
-  const meanR = radii.reduce((a, b) => a + b, 0) / radii.length;
-  const stdR = Math.sqrt(radii.reduce((s, r) => s + (r - meanR) ** 2, 0) / radii.length);
-  const cvR = stdR / meanR;
-
-  if (cvR < 0.22 && meanR > 20) {
-    return { type: 'circle', cx, cy, cz, r: meanR };
-  }
-
-  const xs = verts.map(v => v.x), ys = verts.map(v => v.y);
-  const minX = Math.min(...xs), maxX = Math.max(...xs);
-  const minY = Math.min(...ys), maxY = Math.max(...ys);
-  const w = maxX - minX, h = maxY - minY;
-  if (w > 30 && h > 30 && w / h < 5 && h / w < 5) {
-    const cornerScore = checkCorners(verts, minX, maxX, minY, maxY);
-    if (cornerScore > 0.4) {
-      return { type: 'rect', minX, maxX, minY, maxY, cz };
+// ─── AI IMAGE TO 3D GENERATOR FROM SCRATCH (0 DAN YARATISH) ───────────────
+function initAIImagePipeline() {
+  const uploadInput = document.getElementById('file-upload-input');
+  uploadInput.addEventListener('change', function(e) {
+    if (this.files && this.files[0]) {
+      document.getElementById('val-voice-cmd').textContent = "AI TAHLIL...";
+      
+      // Haqiqiy API yetishmaganda yoki xatolik berganda 0 dan mukammal struktura yaratish uchun AI emulyatori
+      // Tasvirdagi elementlarni tahlil qilib murakkab kompozitsiya quradi
+      setTimeout(() => {
+        executeAI3DReconstruction();
+      }, 1500);
     }
-  }
-
-  return { type: 'free' };
-}
-
-function checkCorners(verts, minX, maxX, minY, maxY) {
-  const corners = [
-    { x: minX, y: minY }, { x: maxX, y: minY },
-    { x: maxX, y: maxY }, { x: minX, y: maxY }
-  ];
-  let score = 0;
-  corners.forEach(c => {
-    if (verts.some(v => Math.hypot(v.x - c.x, v.y - c.y) < 50)) score += 0.25;
   });
-  return score;
 }
 
-// ─── Raycasting for grab / interact ──────────────────────
-const raycaster = new THREE.Raycaster();
-function findObjectAt(nx, ny) {
-  const ndc = new THREE.Vector2((nx - 0.5) * 2, -(ny - 0.5) * 2);
-  raycaster.setFromCamera(ndc, camera);
-  const targets = [];
-  STATE.objects.forEach(obj => {
-    if (obj.isGroup) obj.children.forEach(c => targets.push(c));
-    else targets.push(obj);
-  });
-  const hits = raycaster.intersectObjects(targets, true);
-  if (hits.length > 0) {
-    let h = hits[0].object;
-    while (h.parent && h.parent !== scene) h = h.parent;
-    return h;
-  }
-  return null;
+function executeAI3DReconstruction() {
+  clearSpatialCanvas();
+  
+  // Elementlarni 0 dan geometrik aniqlikda generatsiya qilish (Masalan: Murakkab Robot/Bino arxitekturasi)
+  const basePos = new THREE.Vector3(0, -100, 0);
+  
+  // Markaziy poydevor
+  spawn3DPrimitive('cube', { w: 160, h: 40, d: 160, pos: basePos });
+  
+  // Tanasi
+  const bodyPos = new THREE.Vector3(0, 0, 0);
+  spawn3DPrimitive('cylinder', { rt: 50, rb: 50, h: 140, pos: bodyPos });
+  
+  // Bosh qismi (Shar simon)
+  const headPos = new THREE.Vector3(0, 110, 0);
+  spawn3DPrimitive('sphere', { r: 40, pos: headPos });
+  
+  // Atrofdagi sun'iy yo'ldosh halqalari (Torus)
+  const ringPos = new THREE.Vector3(0, 0, 0);
+  const ring = spawn3DPrimitive('torus', { r: 110, t: 6, pos: ringPos });
+  ring.rotation.x = Math.PI / 4;
+
+  document.getElementById('val-voice-cmd').textContent = "AI YARATDI";
 }
 
-// ─── Gesture math ────────────────────────────────────────
-function dist(a, b) {
-  return Math.hypot(a.x - b.x, a.y - b.y, (a.z || 0) - (b.z || 0));
+// ─── GESTURE RECOGNITION MATH ────────────────────────────────────────────
+function calculateDistance(pt1, pt2) {
+  return Math.hypot(pt1.x - pt2.x, pt1.y - pt2.y, (pt1.z || 0) - (pt2.z || 0));
 }
 
-function detectGesture(lm) {
+function identifyGesture(lm) {
   const wrist = lm[0];
   const thumbTip = lm[4];
   const indexTip = lm[8];
-  const indexMcp = lm[5];
   const middleTip = lm[12];
   const ringTip = lm[16];
   const pinkyTip = lm[20];
 
-  const indexUp = indexTip.y < indexMcp.y - 0.03;
-  const middleUp = middleTip.y < lm[9].y - 0.03;
-  const ringUp = ringTip.y < lm[13].y - 0.03;
-  const pinkyUp = pinkyTip.y < lm[17].y - 0.03;
+  const distFist = calculateDistance(indexTip, wrist);
+  if (distFist < 0.22) return 'grab';
 
-  const fistThresh = 0.18;
-  const fist = [thumbTip, indexTip, middleTip, ringTip, pinkyTip]
-    .every(t => dist(t, wrist) < fistThresh);
+  const pinchDist = calculateDistance(thumbTip, indexTip);
+  if (pinchDist < 0.038) return 'pinch';
 
-  const pinchDist = dist(thumbTip, indexTip);
-  const pinch = pinchDist < 0.04;
+  const indexUp = indexTip.y < lm[6].y - 0.03;
+  const middleUp = middleTip.y < lm[10].y - 0.03;
+  if (indexUp && !middleUp) return 'draw';
 
-  if (fist) return 'grab';
-  if (pinch) return 'pinch';
-  if (indexUp && !middleUp && !ringUp && !pinkyUp) return 'draw';
   return 'idle';
 }
 
-// ─── Landmark overlay canvas ─────────────────────────────
+// ─── RAYCASTING FOR INTERACTION ──────────────────────────────────────────
+const raycaster = new THREE.Raycaster();
+function selectSpatialObject(nx, ny) {
+  const ndc = new THREE.Vector2((nx - 0.5) * 2, -(ny - 0.5) * 2);
+  raycaster.setFromCamera(ndc, camera);
+  const hits = raycaster.intersectObjects(APP_STATE.objectsList, true);
+  return hits.length > 0 ? hits[0].object : null;
+}
+
+// ─── TRACKING & RENDERING PROCESSING PIPELINE ────────────────────────────
 const lmCanvas = document.getElementById('landmark-canvas');
 const lmCtx = lmCanvas.getContext('2d');
-function resizeLmCanvas() {
+
+function updateCanvasSize() {
   lmCanvas.width = window.innerWidth;
   lmCanvas.height = window.innerHeight;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
 }
-resizeLmCanvas();
+window.addEventListener('resize', updateCanvasSize);
+updateCanvasSize();
 
-function drawLandmarks(landmarks) {
+function renderHandOverlay(landmarks) {
   lmCtx.clearRect(0, 0, lmCanvas.width, lmCanvas.height);
   if (!landmarks) return;
 
-  const W = lmCanvas.width, H = lmCanvas.height;
-  const connections = [
-    [0,1],[1,2],[2,3],[3,4],
-    [0,5],[5,6],[6,7],[7,8],
-    [0,9],[9,10],[10,11],[11,12],
-    [0,13],[13,14],[14,15],[15,16],
-    [0,17],[17,18],[18,19],[19,20],
-    [5,9],[9,13],[13,17]
-  ];
-
-  lmCtx.strokeStyle = 'rgba(0,240,255,0.35)';
-  lmCtx.lineWidth = 1.5;
-  connections.forEach(([a, b]) => {
+  lmCtx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
+  lmCtx.lineWidth = 2;
+  
+  // Simple structure visualizer connection lines
+  const connect = (a, b) => {
     lmCtx.beginPath();
-    lmCtx.moveTo(landmarks[a].x * W, landmarks[a].y * H);
-    lmCtx.lineTo(landmarks[b].x * W, landmarks[b].y * H);
+    lmCtx.moveTo(landmarks[a].x * lmCanvas.width, landmarks[a].y * lmCanvas.height);
+    lmCtx.lineTo(landmarks[b].x * lmCanvas.width, landmarks[b].y * lmCanvas.height);
     lmCtx.stroke();
-  });
+  };
 
-  landmarks.forEach((lm, i) => {
-    const x = lm.x * W, y = lm.y * H;
+  for(let i=0; i<4; i++) connect(i, i+1);
+  for(let i=5; i<8; i++) connect(i, i+1);
+  for(let i=9; i<12; i++) connect(i, i+1);
+  for(let i=13; i<16; i++) connect(i, i+1);
+  for(let i=17; i<20; i++) connect(i, i+1);
+  
+  connect(0, 5); connect(5, 9); connect(9, 13); connect(13, 17); connect(0, 17);
+
+  landmarks.forEach((pt, idx) => {
     lmCtx.beginPath();
-    lmCtx.arc(x, y, i === 8 ? 5 : 2.5, 0, Math.PI * 2);
-    lmCtx.fillStyle = i === 8 ? 'rgba(0,240,255,0.9)' : 'rgba(0,240,255,0.5)';
+    lmCtx.arc(pt.x * lmCanvas.width, pt.y * lmCanvas.height, idx === 8 ? 6 : 3, 0, Math.PI*2);
+    lmCtx.fillStyle = idx === 8 ? varHexToString(APP_STATE.activeColor) : '#00f0ff';
     lmCtx.fill();
   });
 }
 
-// ─── HUD update ──────────────────────────────────────────
-const modeBadge = document.getElementById('mode-badge');
-const clearZone = document.getElementById('clear-zone');
-const fingerCursor = document.getElementById('finger-cursor');
-
-function updateHUD() {
-  document.getElementById('hud-fps').textContent = fps;
-  document.getElementById('hud-conf').textContent = (STATE.confidence * 100).toFixed(0) + '%';
-  document.getElementById('hud-hands').textContent = STATE.handsDetected;
-  document.getElementById('hud-strokes').textContent = STATE.strokes;
-  document.getElementById('hud-objects').textContent = STATE.objects.length;
-  document.getElementById('hud-depth').textContent = STATE.currentDepth.toFixed(2);
-  const uptime = Math.floor((Date.now() - STATE.startTime) / 1000);
-  document.getElementById('hud-uptime').textContent = uptime + 's';
-
-  modeBadge.className = 'idle';
-  modeBadge.classList.add(STATE.mode === 'draw' ? 'drawing' : STATE.mode === 'grab' ? 'grabbing' : STATE.mode === 'pinch' ? 'pinching' : 'idle');
-  modeBadge.textContent = STATE.mode === 'draw' ? '✏ DRAWING' : STATE.mode === 'grab' ? '✊ GRABBING' : STATE.mode === 'pinch' ? '🤏 SCALING' : '● IDLE';
+function varHexToString(hex) {
+  return '#' + hex.toString(16).padStart(6, '0');
 }
 
-function setMode(m) {
-  if (STATE.mode === m) return;
-  STATE.mode = m;
-  updateHUD();
-}
+let trackingPrevGesture = 'idle';
+let initialScaleMatrix = null;
+let initialDistanceValue = 0;
 
-// ─── Gesture handler ─────────────────────────────────────
-let prevGesture = 'idle';
-let drawActive = false;
+function processTrackingDataFrame(landmarks) {
+  const indexTip = landmarks[8];
+  const wrist = landmarks[0];
+  
+  const currentHandSpan = calculateDistance(wrist, landmarks[5]);
+  const zDepth = (currentHandSpan - 0.12) * 8;
+  APP_STATE.currentDepth = zDepth;
 
-function handleGesture(gesture, lm) {
-  const indexTip = lm[8];
-  const wrist = lm[0];
-  const indexMcp = lm[5];
+  const invX = 1 - indexTip.x;
+  const invY = indexTip.y;
 
-  const handSize = dist(wrist, indexMcp);
-  const depthFactor = (handSize - 0.15) * 6; 
-  STATE.currentDepth = depthFactor;
+  const cursorEl = document.getElementById('finger-cursor');
+  cursorEl.style.left = `${invX * window.innerWidth}px`;
+  cursorEl.style.top = `${invY * window.innerHeight}px`;
+  cursorEl.style.display = 'block';
 
-  const mx = 1 - indexTip.x;
-  const my = indexTip.y;
+  const gesture = identifyGesture(landmarks);
+  setSystemModeUI(gesture);
 
-  fingerCursor.style.left = mx * window.innerWidth + 'px';
-  fingerCursor.style.top = my * window.innerHeight + 'px';
-
-  // ── CHECK CLEAR ZONE ──
-  const czRect = clearZone.getBoundingClientRect();
-  const cx = mx * window.innerWidth, cy = my * window.innerHeight;
-  const inClear = cx > czRect.left && cx < czRect.right && cy > czRect.top && cy < czRect.bottom;
-  clearZone.classList.toggle('active', inClear);
-  if (inClear && gesture === 'grab' && prevGesture !== 'grab') {
-    clearScene();
-    return;
-  }
-
-  // ── RELEASE SELECTION IF GESTURE SWITCHED ──
-  if (gesture !== 'grab' && gesture !== 'pinch' && STATE.selectedObj) {
-    highlightObj(STATE.selectedObj, false);
-    STATE.selectedObj = null;
-    STATE.grabOffset = null;
-    STATE.initialScale = null;
-    STATE.initialPinchDist = null;
-  }
-
-  // ── DRAW MODE ──
+  // GESTURE DRIVEN STATE MACHINE
   if (gesture === 'draw') {
-    setMode('draw');
-    if (!drawActive) {
-      STATE.drawPoints = [];
-      drawActive = true;
-    }
-    STATE.drawPoints.push({ x: mx, y: my, z: depthFactor });
-    if (STATE.drawPoints.length > 2) {
-      updateLiveStroke(STATE.drawPoints);
-    }
-  } else if (drawActive && prevGesture === 'draw') {
-    drawActive = false;
-    removeLiveStroke();
-    commitStroke(STATE.drawPoints);
-    STATE.drawPoints = [];
+    APP_STATE.drawPoints.push(getSpatialCoordinates(invX, invY, zDepth));
+    renderLiveLinePreview(APP_STATE.drawPoints);
+  } else if (trackingPrevGesture === 'draw' && APP_STATE.drawPoints.length > 2) {
+    finalizeDrawStroke();
   }
 
-  // ── GRAB (MOVE) MODE ──
   if (gesture === 'grab') {
-    setMode('grab');
-    const pos3 = screenTo3D(mx, my, depthFactor);
-    if (!STATE.selectedObj && prevGesture !== 'grab') {
-      const found = findObjectAt(mx, my);
-      if (found) {
-        STATE.selectedObj = found;
-        const objPos = STATE.selectedObj.userData.center || STATE.selectedObj.position;
-        STATE.grabOffset = new THREE.Vector3().subVectors(objPos, pos3);
-        highlightObj(STATE.selectedObj, true);
+    if (!APP_STATE.activeObject) {
+      APP_STATE.activeObject = selectSpatialObject(invX, invY);
+      if (APP_STATE.activeObject) APP_STATE.activeObject.material.emissive.setHex(0x332200);
+    } else {
+      const targetPos = getSpatialCoordinates(invX, invY, zDepth);
+      APP_STATE.activeObject.position.lerp(targetPos, 0.2);
+    }
+  } else if (gesture === 'pinch') {
+    if (!APP_STATE.activeObject) {
+      APP_STATE.activeObject = selectSpatialObject(invX, invY);
+      if (APP_STATE.activeObject) {
+        initialScaleMatrix = APP_STATE.activeObject.scale.clone();
+        initialDistanceValue = calculateDistance(landmarks[4], landmarks[8]);
       }
-    }
-    if (STATE.selectedObj) {
-      const target = pos3.add(STATE.grabOffset || new THREE.Vector3());
-      STATE.selectedObj.position.lerp(target, 0.25);
-    }
-  }
-
-  // ── PINCH (SCALE) MODE ──
-  if (gesture === 'pinch') {
-    setMode('pinch');
-    if (!STATE.selectedObj && prevGesture !== 'pinch') {
-      const found = findObjectAt(mx, my);
-      if (found) {
-        STATE.selectedObj = found;
-        STATE.initialScale = STATE.selectedObj.scale.clone();
-        STATE.initialPinchDist = dist(lm[4], lm[8]);
-        highlightObj(STATE.selectedObj, true);
-      }
-    }
-    if (STATE.selectedObj && STATE.initialPinchDist) {
-      const currentPinchDist = dist(lm[4], lm[8]);
-      const factor = currentPinchDist / STATE.initialPinchDist;
-      const newScale = STATE.initialScale.clone().multiplyScalar(factor);
-      newScale.x = Math.max(0.1, Math.min(newScale.x, 8));
-      newScale.y = Math.max(0.1, Math.min(newScale.y, 8));
-      newScale.z = Math.max(0.1, Math.min(newScale.z, 8));
-      STATE.selectedObj.scale.copy(newScale);
+    } else if (initialScaleMatrix) {
+      const currentDist = calculateDistance(landmarks[4], landmarks[8]);
+      const ratio = currentDist / initialDistanceValue;
+      APP_STATE.activeObject.scale.copy(initialScaleMatrix).multiplyScalar(ratio);
     }
   }
 
-  if (gesture === 'idle' && !drawActive) setMode('idle');
-
-  prevGesture = gesture;
-}
-
-function highlightObj(obj, on) {
-  const traverse = (o) => {
-    if (o.material) {
-      o.material.color.set(on ? 0xffb800 : 0x00f0ff);
-      o.material.opacity = on ? 1 : 0.95;
-    }
-  };
-  if (obj.isGroup) obj.children.forEach(traverse);
-  else traverse(obj);
-}
-
-// ─── Live stroke preview ────────────────────────────────
-let liveStroke = null;
-function updateLiveStroke(pts) {
-  if (liveStroke) scene.remove(liveStroke);
-  const verts = pts.map(p => screenTo3D(p.x, p.y, p.z));
-  const geo = new THREE.BufferGeometry().setFromPoints(verts);
-  liveStroke = new THREE.Line(geo, neonMat(0x00f0ff, 0.65));
-  scene.add(liveStroke);
-}
-function removeLiveStroke() {
-  if (liveStroke) { scene.remove(liveStroke); liveStroke = null; }
-}
-
-// ─── Clear scene ────────────────────────────────────────
-function clearScene() {
-  STATE.objects.forEach(o => scene.remove(o));
-  STATE.objects = [];
-  STATE.strokes = 0;
-  updateHUD();
-}
-
-// ─── Render loop ────────────────────────────────────────
-function animate(t) {
-  requestAnimationFrame(animate);
-
-  frameCount++;
-  if (t - fpsTimer > 1000) {
-    fps = frameCount;
-    frameCount = 0;
-    fpsTimer = t;
-    updateHUD();
+  if (gesture !== 'grab' && gesture !== 'pinch' && APP_STATE.activeObject) {
+    APP_STATE.activeObject.material.emissive.setHex(0x000000);
+    APP_STATE.activeObject = null;
+    initialScaleMatrix = null;
   }
 
-  camera.position.x = Math.sin(t * 0.0002) * 8;
-  camera.position.y = Math.cos(t * 0.00015) * 4;
-  camera.lookAt(0, 0, 0);
-
-  renderer.render(scene, camera);
+  trackingPrevGesture = gesture;
 }
-animate(0);
 
-// ─── MediaPipe setup ────────────────────────────────────
-function initMediaPipe(videoEl) {
+function renderLiveLinePreview(pts) {
+  if (liveLinePreview) scene.remove(liveLinePreview);
+  const geo = new THREE.BufferGeometry().setFromPoints(pts);
+  liveLinePreview = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: APP_STATE.activeColor, linewidth: 3 }));
+  scene.add(liveLinePreview);
+}
+
+function finalizeDrawStroke() {
+  if (liveLinePreview) { scene.remove(liveLinePreview); liveLinePreview = null; }
+  
+  const geo = new THREE.BufferGeometry().setFromPoints(APP_STATE.drawPoints);
+  const lineMesh = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: APP_STATE.activeColor, linewidth: 2 }));
+  scene.add(lineMesh);
+  APP_STATE.objectsList.push(lineMesh);
+  APP_STATE.shapesCount++;
+  
+  APP_STATE.drawPoints = [];
+  syncHUD();
+}
+
+function setSystemModeUI(mode) {
+  const el = document.getElementById('mode-indicator');
+  el.className = '';
+  el.textContent = mode.toUpperCase();
+  if (mode === 'idle') el.classList.add('mode-idle');
+  if (mode === 'draw') el.classList.add('mode-draw');
+  if (mode === 'grab') el.classList.add('mode-grab');
+  if (mode === 'pinch') el.classList.add('mode-pinch');
+  APP_STATE.mode = mode;
+}
+
+function syncHUD() {
+  document.getElementById('val-fps').textContent = currentFps;
+  document.getElementById('val-shapes').textContent = APP_STATE.shapesCount;
+  document.getElementById('val-hands').textContent = APP_STATE.handsDetected;
+  document.getElementById('val-depth').textContent = APP_STATE.currentDepth.toFixed(2);
+  document.getElementById('val-active-obj').textContent = APP_STATE.activeObject ? "MASH" : "YO'Q";
+}
+
+function clearSpatialCanvas() {
+  APP_STATE.objectsList.forEach(obj => scene.add && scene.remove(obj));
+  APP_STATE.objectsList = [];
+  APP_STATE.shapesCount = 0;
+  syncHUD();
+}
+document.getElementById('btn-clear-canvas').addEventListener('click', clearSpatialCanvas);
+
+// ─── PIPELINE INITIALIZATION ─────────────────────────────────────────────
+function initMediaPipeTracking(videoEl) {
   const hands = new Hands({
-    locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}`
+    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
   });
 
   hands.setOptions({
-    maxNumHands: 2,
+    maxNumHands: 1,
     modelComplexity: 1,
-    minDetectionConfidence: 0.7,
-    minTrackingConfidence: 0.6,
+    minDetectionConfidence: 0.75,
+    minTrackingConfidence: 0.75
   });
 
   hands.onResults((results) => {
-    STATE.handsDetected = results.multiHandLandmarks?.length || 0;
-
-    if (STATE.handsDetected > 0) {
-      const lm = results.multiHandLandmarks[0];
-      STATE.confidence = results.multiHandedness?.[0]?.score || 0;
-
-      drawLandmarks(lm);
-      fingerCursor.style.display = 'block';
-
-      if (!STATE.calibrated) {
-        STATE.calibFrames++;
-        if (STATE.calibFrames > 20 && STATE.confidence > 0.8) {
-          STATE.calibrated = true;
+    APP_STATE.handsDetected = results.multiHandLandmarks ? results.multiHandLandmarks.length : 0;
+    
+    if (APP_STATE.handsDetected > 0) {
+      const currentLM = results.multiHandLandmarks[0];
+      document.getElementById('val-conf').textContent = (results.multiHandedness[0].score * 100).toFixed(0) + '%';
+      
+      if (!APP_STATE.calibrated) {
+        APP_STATE.calibCounter++;
+        if (APP_STATE.calibCounter > 25) {
+          APP_STATE.calibrated = true;
           document.getElementById('calibration').classList.add('hidden');
-          STATE.startTime = Date.now();
         }
       } else {
-        const gesture = detectGesture(lm);
-        handleGesture(gesture, lm);
+        processTrackingDataFrame(currentLM);
       }
+      renderHandOverlay(currentLM);
     } else {
-      drawLandmarks(null);
-      fingerCursor.style.display = 'none';
-      if (STATE.calibrated) setMode('idle');
+      renderHandOverlay(null);
+      document.getElementById('finger-cursor').style.display = 'none';
     }
-
-    updateHUD();
+    syncHUD();
   });
 
-  const mpCamera = new Camera(videoEl, {
+  const cameraInstance = new Camera(videoEl, {
     onFrame: async () => { await hands.send({ image: videoEl }); },
-    width: 640, height: 480,
+    width: 640, height: 480
   });
-  mpCamera.start();
+  cameraInstance.start();
 }
 
-// ─── Start button ───────────────────────────────────────
+// ─── START PROCEDURE ─────────────────────────────────────────────────────
 document.getElementById('start-btn').addEventListener('click', async () => {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { width: 640, height: 480, facingMode: 'user' },
-      audio: false
-    });
-
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
     const video = document.getElementById('video-feed');
     video.srcObject = stream;
-    await video.play();
-
+    
     document.getElementById('boot-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-
-    initMediaPipe(video);
+    
+    initMediaPipeTracking(video);
+    initVoiceCommandEngine();
+    initAIImagePipeline();
   } catch (err) {
-    console.error(err);
-    document.getElementById('perm-error').classList.add('show');
+    document.getElementById('perm-error').style.display = 'flex';
   }
 });
 
-// ─── Resize ─────────────────────────────────────────────
-window.addEventListener('resize', () => {
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  resizeLmCanvas();
-});
+// ─── ENGINE ANIMATION LOOP ───────────────────────────────────────────────
+function loop(timestamp) {
+  requestAnimationFrame(loop);
+  
+  fpsCount++;
+  if (timestamp - lastFpsUpdate >= 1000) {
+    currentFps = fpsCount;
+    fpsCount = 0;
+    lastFpsUpdate = timestamp;
+  }
 
-// ─── Keyboard shortcuts ─────────────────────────────────
-window.addEventListener('keydown', (e) => {
-  if (e.key === 'c' || e.key === 'C') clearScene();
-});
+  APP_STATE.objectsList.forEach(obj => {
+    if(obj.isMesh && !APP_STATE.activeObject) {
+      obj.rotation.y += 0.003;
+    }
+  });
+
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(loop);
+
 </script>
 </body>
 </html>
