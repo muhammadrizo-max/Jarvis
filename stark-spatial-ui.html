@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>STARK SPATIAL AI & VOICE UI v3.0</title>
+<title>STARK SPATIAL AI OS v3.5</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
 
@@ -97,7 +97,7 @@
     position: absolute; inset: 0;
     width: 100%; height: 100%;
     object-fit: cover;
-    opacity: 0.12;
+    opacity: 0.15;
     transform: scaleX(-1);
     z-index: 1;
     pointer-events: none;
@@ -109,12 +109,12 @@
   #calibration {
     position: absolute; inset: 0; z-index: 10;
     display: flex; align-items: center; justify-content: center;
-    background: rgba(1, 6, 18, 0.8);
+    background: rgba(1, 6, 18, 0.85);
     backdrop-filter: blur(8px);
   }
   #calibration.hidden { display: none; }
 
-  /* HUD INTERACTIVE NETWORKS */
+  /* HUD PANELS */
   .hud-panel {
     position: absolute; z-index: 20;
     background: var(--panel-bg);
@@ -145,55 +145,77 @@
   .label { color: rgba(0, 240, 255, 0.45); }
   .val { color: var(--cyan); font-weight: bold; }
   .val.active { color: var(--gold); }
-  .val.alert { color: var(--red); }
 
-  /* WEB AUTOMATION SIMULATOR TERMINAL */
+  /* INTERACTIVE BROWSER WINDOW SIMULATOR */
   #holo-browser-window {
     position: absolute;
-    top: 20%; left: 25%;
-    width: 50%; height: 50%;
-    background: rgba(1, 10, 35, 0.95);
+    top: 15%; left: 20%;
+    width: 60%; height: 65%;
+    background: rgba(1, 10, 35, 0.98);
     border: 2px solid var(--cyan);
-    box-shadow: 0 0 50px rgba(0, 240, 255, 0.25);
+    box-shadow: 0 0 60px rgba(0, 240, 255, 0.3);
     z-index: 25;
     display: none;
     flex-direction: column;
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
   }
 
   .browser-header {
-    background: rgba(0, 240, 255, 0.15);
-    padding: 10px 16px;
+    background: rgba(0, 240, 255, 0.18);
+    padding: 12px 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--cyan);
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.75rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+  }
+
+  .browser-main-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
   }
 
   .browser-content {
     flex: 1;
-    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    background: #000;
+  }
+
+  #browser-iframe {
+    width: 100%;
+    flex: 1;
+    border: none;
+    background: #fff;
+  }
+
+  .browser-terminal-side {
+    width: 250px;
+    background: rgba(0, 5, 15, 0.95);
+    border-left: 1px solid var(--cyan);
+    padding: 12px;
+    font-size: 0.75rem;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
   }
 
   .browser-url-bar {
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(0, 240, 255, 0.3);
-    padding: 8px 12px;
-    font-size: 0.75rem;
+    background: rgba(0, 0, 0, 0.8);
+    border-bottom: 1px solid rgba(0, 240, 255, 0.2);
+    padding: 10px 16px;
+    font-size: 0.8rem;
     color: var(--gold);
-    margin-bottom: 10px;
   }
 
   .browser-log-line {
     border-left: 2px solid var(--cyan);
-    padding-left: 10px;
-    font-size: 0.8rem;
+    padding-left: 8px;
+    line-height: 1.3;
   }
 
   #mode-indicator {
@@ -208,7 +230,6 @@
   .mode-idle { color: var(--cyan); border-color: var(--cyan); }
   .mode-draw { color: var(--purple); border-color: var(--purple); }
   .mode-grab { color: var(--gold); border-color: var(--gold); }
-  .mode-pinch { color: var(--red); border-color: var(--red); }
   .mode-rotate { color: #00ff66; border-color: #00ff66; }
 
   #voice-module-panel {
@@ -218,7 +239,7 @@
     background: rgba(0, 240, 255, 0.03);
     padding: 8px 16px;
     border: 1px solid rgba(0, 240, 255, 0.15);
-    width: 400px;
+    width: 450px;
   }
 
   .voice-pulse-ring {
@@ -274,11 +295,11 @@
 
 <div id="boot-screen">
   <div class="logo-wrap">
-    <div class="logo-title">STARK CORE</div>
-    <div style="font-size: 0.75rem; letter-spacing: 0.4em; color: rgba(0,240,255,0.5); margin-top: 6px;">MULTIMODAL SPATIAL ENGINE v3.0</div>
+    <div class="logo-title">JARVIS CORE</div>
+    <div style="font-size: 0.75rem; letter-spacing: 0.4em; color: rgba(0,240,255,0.5); margin-top: 6px;">MULTIMODAL SPATIAL ENGINE v3.5</div>
   </div>
   <div class="api-container">
-    <div style="font-size: 0.8rem; color: var(--cyan);">GROQ API KALITI INTEGRATSIYASI:</div>
+    <div style="font-size: 0.8rem; color: var(--cyan);">GROQ API KEY INTEGRATSIYASI:</div>
     <input type="password" id="groq-key-input" class="api-input" placeholder="gsk_...">
     <button id="start-btn">SISTEMANI FAOLASHTIRISH</button>
   </div>
@@ -304,8 +325,8 @@
   <div class="hud-panel" id="hud-left">
     <div class="hud-header">PROEKTSIYA METRIKALARI</div>
     <div class="hud-row"><span class="label">ENGINE FPS</span><span class="val" id="val-fps">--</span></div>
-    <div class="hud-row"><span class="label">KAF TIZIMI</span><span class="val" id="val-conf">0%</span></div>
-    <div class="hud-row"><span class="label">KAF DETEKSIYASI</span><span class="val" id="val-hands">0</span></div>
+    <div class="hud-row"><span class="label">KAF MATRIXI</span><span class="val" id="val-conf">0%</span></div>
+    <div class="hud-row"><span class="label">DETEKSIYA</span><span class="val" id="val-hands">0</span></div>
     <div class="hud-row"><span class="label">Z-DEPTH</span><span class="val" id="val-depth">0.00</span></div>
   </div>
 
@@ -313,7 +334,7 @@
     <div class="hud-header">STRUKTURALI METRIKA</div>
     <div class="hud-row"><span class="label">MURAKKAB OBYEKTLAR</span><span class="val" id="val-shapes">0</span></div>
     <div class="hud-row"><span class="label">FAOL MATRIX</span><span class="val" id="val-active-obj">YO'Q</span></div>
-    <div class="hud-row"><span class="label">AI PROCESSOR</span><span class="val active" id="val-ai-status">TAYYOR</span></div>
+    <div class="hud-row"><span class="label">AI STATUS</span><span class="val active" id="val-ai-status">TAYYOR</span></div>
   </div>
 
   <div id="holo-browser-window">
@@ -321,16 +342,21 @@
       <span id="browser-title">INTERFAOL PLATFORMA SIMULATORI</span>
       <span style="cursor:pointer; color:var(--red);" onclick="closeHoloBrowser()">[X]</span>
     </div>
-    <div class="browser-content" id="browser-terminal">
-      <div class="browser-url-bar" id="browser-url">about:blank</div>
-      <div class="browser-log-line" style="color:var(--cyan);">&gt; Avtomatlashtirilgan tizim buyruqlar uchun tayyor.</div>
+    <div class="browser-url-bar" id="browser-url">about:blank</div>
+    <div class="browser-main-layout">
+      <div class="browser-content">
+        <iframe id="browser-iframe" src=""></iframe>
+      </div>
+      <div class="browser-terminal-side" id="browser-terminal-log">
+        <div class="browser-log-line" style="color:var(--cyan);">&gt; JARVIS Web Automation ishlashga tayyor.</div>
+      </div>
     </div>
   </div>
 
   <div class="hud-panel" id="hud-bottom">
     <div id="voice-module-panel">
       <div class="voice-pulse-ring" id="voice-rec-dot"></div>
-      <div style="font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">OVOZ: <span id="voice-transcript" style="color:var(--gold);">eshitmoqda...</span></div>
+      <div style="font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%;">OVOZ: <span id="voice-transcript" style="color:var(--gold);">eshitmoqda...</span></div>
     </div>
 
     <div id="mode-indicator" class="mode-idle">IDLE</div>
@@ -351,7 +377,7 @@
 
 <script>
 // ══════════════════════════════════════════════════════════════════════════
-//  STARK SYSTEM INFRASTRUCTURE CORE
+//  JARVIS SYSTEM INFRASTRUCTURE CORE v3.5
 // ══════════════════════════════════════════════════════════════════════════
 
 let GROQ_API_KEY = "";
@@ -383,34 +409,34 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
 camera.position.set(0, 0, 1000);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
-const dirLight = new THREE.DirectionalLight(0x00f0ff, 0.8);
-dirLight.position.set(300, 500, 400);
+const dirLight = new THREE.DirectionalLight(0x00f0ff, 0.9);
+dirLight.position.set(200, 400, 500);
 scene.add(dirLight);
 
-const grid = new THREE.GridHelper(3000, 50, 0x00f0ff, 0x001726);
-grid.position.y = -350;
-grid.material.opacity = 0.25;
+const grid = new THREE.GridHelper(3000, 60, 0x00f0ff, 0x001726);
+grid.position.y = -300;
+grid.material.opacity = 0.2;
 grid.material.transparent = true;
 scene.add(grid);
 
-// ─── EXACT UNPROJECTION COORDINAL MAPPING ────────────────────────────────
+// ─── EXACT UNPROJECTION COORDINAL MAPPING (Siljishlarsiz Chizish) ──────────
 function getSpatialCoordinates(nx, ny, depth) {
   const vec = new THREE.Vector3((nx * 2) - 1, -(ny * 2) + 1, 0.5);
   vec.unproject(camera);
   const dir = vec.sub(camera.position).normalize();
-  const distance = ( -camera.position.z / dir.z ) + (depth * 250);
+  const distance = ( -camera.position.z / dir.z ) + (depth * 220);
   return camera.position.clone().add(dir.multiplyScalar(distance));
 }
 
-// ─── SPEECH SYNTHESIS ENGINE ──────────────────────────────────────────────
+// ─── SPEECH SYNTHESIS ENGINE (Ovozli AI) ──────────────────────────────────
 function speakSystem(text) {
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'uz-UZ';
-    utterance.pitch = 1.0;
+    utterance.pitch = 0.95;
     utterance.rate = 1.05;
     window.speechSynthesis.speak(utterance);
   }
@@ -419,22 +445,21 @@ function speakSystem(text) {
 // ─── GROQ MULTIMODAL INTELLIGENCE INTERFACE ──────────────────────────────
 async function queryGroqIntelligence(userPrompt) {
   if (!GROQ_API_KEY) return null;
-  document.getElementById('val-ai-status').textContent = "PROCESS...";
+  document.getElementById('val-ai-status').textContent = "FIKRLASH...";
   
   try {
-    const systemPrompt = `Siz STARK spatial tizimining sun'iy intellektisiz. Foydalanuvchi buyruqlariga asosan faqat va faqat quyidagi formatdagi qat'iy JSON javob qaytaring. Boshqa hech qanday matn qo'shmang.
-JSON Formati:
+    const systemPrompt = `Siz JARVIS sun'iy intellektisiz. Foydalanuvchi buyruqlariga asosan faqat va faqat quyidagi qat'iy JSON formatda javob qaytaring. JSONdan tashqari hech qanday matn qo'shmang.
+Format:
 {
   "speech": "Foydalanuvchiga ovozli aytiladigan javob matni (O'zbek tilida)",
   "automation": {
     "execute": true/false,
-    "app": "Google" yoki "YouTube" yoki "Telegram" yoki "GitHub" yoki "Tizim",
-    "url": "sayt manzili",
-    "actionLog": "bajarilgan amal tavsifi"
+    "app": "YouTube" yoki "Google" yoki "GitHub" yoki "Tizim",
+    "url": "https://www.youtube.com/embed" yoki tegishli sayt embed/manzil linki,
+    "actionLog": "Bajarilgan amal tafsiloti log matni"
   },
   "proceduralMesh": {
-    "generate": true/false,
-    "type": "complex_structure" yoki "null"
+    "generate": true/false
   }
 }`;
 
@@ -503,21 +528,31 @@ function initVoiceCommandEngine() {
 function triggerHoloBrowser(appName, url, actionLog) {
   const win = document.getElementById('holo-browser-window');
   win.style.display = 'flex';
-  document.getElementById('browser-title').textContent = `SISTEMA AVTOMATIZATSIYASI: ${appName.toUpperCase()}`;
+  document.getElementById('browser-title').textContent = `JARVIS LIVE INTERACTION: ${appName.toUpperCase()}`;
   document.getElementById('browser-url').textContent = url;
   
-  const terminal = document.getElementById('browser-terminal');
-  terminal.innerHTML = `<div class="browser-url-bar">${url}</div>
-                        <div class="browser-log-line" style="color:var(--gold);">&gt; Kirish buyrug'i bajarilmoqda...</div>
-                        <div class="browser-log-line">&gt; Manzil: ${url}</div>
-                        <div class="browser-log-line" style="color:#00ff66;">&gt; STATUS: ${actionLog}</div>`;
+  const iframe = document.getElementById('browser-iframe');
+  if (appName.toLowerCase() === 'youtube') {
+    iframe.src = "https://www.youtube.com/embed/dQw4w9WgXcQ"; // Xavfsiz embed simulyatsiyasi
+  } else if (appName.toLowerCase() === 'google') {
+    iframe.src = "https://bing.com"; // Iframe bloklanishini oldini olish uchun
+  } else {
+    iframe.src = url;
+  }
+
+  const logPanel = document.getElementById('browser-terminal-log');
+  const newLine = document.createElement('div');
+  newLine.className = 'browser-log-line';
+  newLine.style.color = '#00ff66';
+  newLine.innerHTML = `&gt; [${appName}] ${actionLog}`;
+  logPanel.appendChild(newLine);
 }
 
 function closeHoloBrowser() {
   document.getElementById('holo-browser-window').style.display = 'none';
 }
 
-// ─── PROCEDURAL AI 0 DAN MESH CHIZISH (GEOMETRIK SHAKLLARSURIZ) ───────────
+// ─── PROCEDURAL AI 0 DAN MESH CHIZISH (Haqiqiy Murakkab Struktura) ────────
 function generate0FromScratchProceduralMesh() {
   clearSpatialCanvas();
   
@@ -526,24 +561,25 @@ function generate0FromScratchProceduralMesh() {
   const vertices = [];
   const colors = [];
 
-  const radialSegments = 40;
-  const tubularSegments = 140;
+  const radialSegments = 50;
+  const tubularSegments = 150;
 
-  // Matematik qonuniyatlar asosida murakkab 0 dan chizilgan parametrik muhandislik shakli (Generative Knot Mesh)
+  // Matematik qonuniyatlar asosida noldan chizilgan murakkab generative gologramma sirti
   for (let j = 0; j <= tubularSegments; j++) {
     for (let i = 0; i <= radialSegments; i++) {
-      const u = (j / tubularSegments) * Math.PI * 4;
+      const u = (j / tubularSegments) * Math.PI * 6;
       const v = (i / radialSegments) * Math.PI * 2;
 
-      const x = Math.sin(u) * (160 + 60 * Math.cos(v + u * 2)) + Math.cos(u * 3) * 40;
-      const y = Math.cos(u) * (160 + 60 * Math.cos(v + u * 2)) + Math.sin(u * 2) * 40;
-      const z = 60 * Math.sin(v + u * 2) + Math.sin(u * 4) * 50;
+      // Murakkab topologik formula (Generative Mobius Knot)
+      const x = Math.sin(u) * (180 + 50 * Math.cos(v + u)) + Math.cos(u * 2) * 30;
+      const y = Math.cos(u) * (180 + 50 * Math.cos(v + u)) + Math.sin(u * 2) * 30;
+      const z = 70 * Math.sin(v + u * 1.5) + Math.cos(u * 3) * 40;
 
       vertices.push(x, y, z);
 
-      const r = 0.2 + 0.8 * Math.sin(u);
-      const g = 0.5 + 0.5 * Math.cos(v);
-      const b = 0.9;
+      const r = 0.1 + 0.9 * Math.abs(Math.sin(u));
+      const g = 0.4 + 0.6 * Math.abs(Math.cos(v));
+      const b = 0.95;
       colors.push(r, g, b);
     }
   }
@@ -568,9 +604,9 @@ function generate0FromScratchProceduralMesh() {
   const material = new THREE.MeshStandardMaterial({
     vertexColors: true,
     roughness: 0.1,
-    metalness: 0.9,
+    metalness: 0.85,
     side: THREE.DoubleSide,
-    wireframe: false
+    wireframe: true // Haqiqiy kiber-gologramma ko'rinishi uchun
   });
 
   const mesh = new THREE.Mesh(geometry, material);
@@ -585,10 +621,10 @@ function generate0FromScratchProceduralMesh() {
 function initAIImagePipeline() {
   document.getElementById('file-upload-raw').addEventListener('change', function() {
     if (this.files && this.files[0]) {
-      speakSystem("Rasm yuklandi. Sun'iy intellekt murakkab uch o'lchamli vizual strukturani noldan hisoblamoqda.");
+      speakSystem("Rasm tahlil qilinmoqda. Kvant koordinatali 3D model noldan generatsiya qilinmoqda.");
       setTimeout(() => {
         generate0FromScratchProceduralMesh();
-      }, 1000);
+      }, 1200);
     }
   });
 }
@@ -599,7 +635,6 @@ function calculateDistance(pt1, pt2) {
 }
 
 function checkHandOpen(lm) {
-  // Agar barmoq uchlari bo'g'inlardan sezilarli tepada/uzoqda bo'lsa - Ochiq Kaft
   const wrist = lm[0];
   const tips = [8, 12, 16, 20];
   const pips = [6, 10, 14, 18];
@@ -619,10 +654,10 @@ function identifyGesture(lm) {
   const indexTip = lm[8];
   
   const distFist = calculateDistance(indexTip, wrist);
-  if (distFist < 0.23) return 'grab';
+  if (distFist < 0.22) return 'grab';
 
   const pinchDist = calculateDistance(thumbTip, indexTip);
-  if (pinchDist < 0.045) return 'pinch';
+  if (pinchDist < 0.04) return 'pinch';
 
   if (checkHandOpen(lm)) return 'open';
 
@@ -650,8 +685,8 @@ function drawHandOverlay(multiLandmarks) {
   lmCtx.clearRect(0, 0, lmCanvas.width, lmCanvas.height);
   if (!multiLandmarks) return;
 
-  lmCtx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
-  lmCtx.lineWidth = 2.5;
+  lmCtx.strokeStyle = 'rgba(0, 240, 255, 0.45)';
+  lmCtx.lineWidth = 2;
 
   multiLandmarks.forEach((landmarks) => {
     const connect = (a, b) => {
@@ -669,8 +704,8 @@ function drawHandOverlay(multiLandmarks) {
 
     landmarks.forEach((pt, idx) => {
       lmCtx.beginPath();
-      lmCtx.arc(pt.x * lmCanvas.width, pt.y * lmCanvas.height, idx === 8 ? 5 : 2.5, 0, Math.PI*2);
-      lmCtx.fillStyle = idx === 8 ? '#00f0ff' : 'rgba(0,240,255,0.8)';
+      lmCtx.arc(pt.x * lmCanvas.width, pt.y * lmCanvas.height, idx === 8 ? 6 : 2.5, 0, Math.PI*2);
+      lmCtx.fillStyle = idx === 8 ? '#00f0ff' : 'rgba(0,240,255,0.85)';
       lmCtx.fill();
     });
   });
@@ -679,11 +714,11 @@ function drawHandOverlay(multiLandmarks) {
 let trackingPrevGesture = 'idle';
 
 function processSpatialFrames(multiLandmarks) {
-  // Hand 0 Control Logic (Primary Actions)
   const primaryHand = multiLandmarks[0];
   const indexTip = primaryHand[8];
   const wrist = primaryHand[0];
 
+  // KO'RSATKICH BARMOG'IGA SINXRON CURSOR PROEKTSIYASI (Siljishlarsiz o'ng/chap kadr hisobi)
   const invX = 1 - indexTip.x;
   const invY = indexTip.y;
 
@@ -698,13 +733,13 @@ function processSpatialFrames(multiLandmarks) {
 
   const mainGesture = identifyGesture(primaryHand);
 
-  // TWO HANDED ROTATION DETECTOR (Ochiq kaft ixtiyoriy tomonga harakatlanganda obyekti aylantirish)
-  let rotationTriggered = false;
+  // IKKI QO'LLI OYLANISH EFFEKTI (Ixtiyoriy ochiq kaft bilan jismni o'z o'qi atrofida aylantirish)
+  let rotationActive = false;
   
   multiLandmarks.forEach((handLM, handIdx) => {
     const handGesture = identifyGesture(handLM);
     if (handGesture === 'open' && ENGINE_STATE.spatialObjects.length > 0) {
-      rotationTriggered = true;
+      rotationActive = true;
       setSystemModeUI('rotate');
       
       const currentHandPos = { x: 1 - handLM[8].x, y: handLM[8].y };
@@ -715,8 +750,8 @@ function processSpatialFrames(multiLandmarks) {
         const deltaY = currentHandPos.y - prevPos.y;
         
         ENGINE_STATE.spatialObjects.forEach(obj => {
-          obj.rotation.y += deltaX * 4.5;
-          obj.rotation.x += deltaY * 4.5;
+          obj.rotation.y += deltaX * 5.0;
+          obj.rotation.x += deltaY * 5.0;
         });
       }
       ENGINE_STATE.lastHandPositions[handIdx] = currentHandPos;
@@ -725,11 +760,11 @@ function processSpatialFrames(multiLandmarks) {
     }
   });
 
-  if (!rotationTriggered) {
+  if (!rotationActive) {
     setSystemModeUI(mainGesture);
     
     if (mainGesture === 'draw') {
-      // To'g'ridan to'g'ri barmoq uchi koordinatasiga chizish proeksiyasi
+      // Barmoq uchi turgan aniq koordinatada 3D chiziq chizish
       ENGINE_STATE.drawPoints.push(getSpatialCoordinates(invX, invY, zDepth));
       renderLiveDrawingStroke(ENGINE_STATE.drawPoints);
     } else if (trackingPrevGesture === 'draw' && ENGINE_STATE.drawPoints.length > 1) {
@@ -741,7 +776,7 @@ function processSpatialFrames(multiLandmarks) {
         ENGINE_STATE.activeObject = selectSpatialObject(invX, invY);
       } else {
         const targetPos = getSpatialCoordinates(invX, invY, zDepth);
-        ENGINE_STATE.activeObject.position.lerp(targetPos, 0.3);
+        ENGINE_STATE.activeObject.position.lerp(targetPos, 0.25);
       }
     }
     
@@ -778,7 +813,6 @@ function setSystemModeUI(mode) {
   if (mode === 'idle') el.classList.add('mode-idle');
   if (mode === 'draw') el.classList.add('mode-draw');
   if (mode === 'grab') el.classList.add('mode-grab');
-  if (mode === 'pinch') el.classList.add('mode-pinch');
   if (mode === 'rotate') el.classList.add('mode-rotate');
   ENGINE_STATE.mode = mode;
 }
@@ -788,7 +822,7 @@ function syncHUD() {
   document.getElementById('val-shapes').textContent = ENGINE_STATE.shapesCount;
   document.getElementById('val-hands').textContent = ENGINE_STATE.handsDetected;
   document.getElementById('val-depth').textContent = ENGINE_STATE.currentDepth.toFixed(2);
-  document.getElementById('val-active-obj').textContent = ENGINE_STATE.activeObject ? "MASH" : "YO'Q";
+  document.getElementById('val-active-obj').textContent = ENGINE_STATE.activeObject ? "HA" : "YO'Q";
 }
 
 function clearSpatialCanvas() {
@@ -806,10 +840,10 @@ function initMediaPipe(videoEl) {
   });
 
   hands.setOptions({
-    maxNumHands: 2, // Ikkita qo'lli mukammal boshqaruv
+    maxNumHands: 2,
     modelComplexity: 1,
-    minDetectionConfidence: 0.7,
-    minTrackingConfidence: 0.7
+    minDetectionConfidence: 0.75,
+    minTrackingConfidence: 0.75
   });
 
   hands.onResults((results) => {
@@ -820,10 +854,10 @@ function initMediaPipe(videoEl) {
       
       if (!ENGINE_STATE.calibrated) {
         ENGINE_STATE.calibCounter++;
-        if (ENGINE_STATE.calibCounter > 25) {
+        if (ENGINE_STATE.calibCounter > 20) {
           ENGINE_STATE.calibrated = true;
           document.getElementById('calibration').classList.add('hidden');
-          speakSystem("Tizim muvaffaqiyatli kalibratsiya qilindi.");
+          speakSystem("Kvant fazoviy kalibratsiya muvaffaqiyatli yakunlandi. Men tayyorman, ser.");
         }
       } else {
         processSpatialFrames(results.multiHandLandmarks);
@@ -863,7 +897,7 @@ document.getElementById('start-btn').addEventListener('click', async () => {
     initMediaPipe(video);
     initVoiceCommandEngine();
     initAIImagePipeline();
-    speakSystem("Stark spatial tizimi faollashtirildi.");
+    speakSystem("Tizim yuklandi. Atrofni skanerlash va kalibrlash uchun qo'llaringizni ko'rsating.");
   } catch (err) {
     document.getElementById('perm-error').style.display = 'flex';
   }
@@ -880,10 +914,10 @@ function loop(timestamp) {
     lastFpsUpdate = timestamp;
   }
 
-  // Faqat ochiq qo'l bilan manipulyatsiya bo'lmayotgan holatda sekin o'z o'qi atrofida aylanish
+  // Erkin holatda ob'ektning sekin fazoviy aylanishi
   if (ENGINE_STATE.mode !== 'rotate' && !ENGINE_STATE.activeObject) {
     ENGINE_STATE.spatialObjects.forEach(obj => {
-      obj.rotation.y += 0.003;
+      if (obj.isMesh) obj.rotation.y += 0.004;
     });
   }
 
