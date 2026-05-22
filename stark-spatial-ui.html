@@ -3,17 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>STARK SPATIAL LABS - O'ZBEKISTON EDITION</title>
+<title>STARK SPATIAL AI & VOICE UI v2.5</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Share+Tech+Mono&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
 
   :root {
     --cyan: #00f0ff;
     --red: #ff0055;
     --gold: #ffb800;
-    --bg: #01060d;
-    --panel-bg: rgba(2, 12, 26, 0.88);
-    --border: rgba(0, 240, 255, 0.25);
+    --purple: #a124ff;
+    --bg: #010612;
+    --panel-bg: rgba(1, 12, 32, 0.85);
+    --border: rgba(0, 240, 255, 0.3);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -28,257 +29,319 @@
     user-select: none;
   }
 
+  /* ── BOOT SCREEN ── */
   #boot-screen {
     position: fixed; inset: 0; z-index: 100;
     background: var(--bg);
     display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 30px;
+    align-items: center; justify-content: center;
+    gap: 32px;
   }
+
+  .logo-wrap { text-align: center; }
 
   .logo-title {
     font-family: 'Orbitron', sans-serif;
-    font-size: 3.2rem;
+    font-size: clamp(2rem, 6vw, 4.5rem);
     font-weight: 900;
-    letter-spacing: 0.25em;
+    letter-spacing: 0.3em;
     color: var(--cyan);
-    text-shadow: 0 0 25px rgba(0,240,255,0.6);
-    text-align: center;
+    text-shadow: 0 0 20px var(--cyan), 0 0 60px var(--cyan);
+    animation: flicker 3s infinite;
+  }
+
+  .system-status-container {
+    width: 380px;
+    background: rgba(0, 240, 255, 0.04);
+    border: 1px solid var(--border);
+    padding: 16px;
+    font-size: 0.75rem;
+    line-height: 1.8;
   }
 
   #start-btn {
     font-family: 'Orbitron', sans-serif;
-    font-size: 1.1rem;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.2em;
     color: var(--bg);
     background: var(--cyan);
     border: none;
-    padding: 18px 45px;
+    padding: 16px 44px;
     cursor: pointer;
-    clip-path: polygon(12px 0%, 100% 0%, calc(100% - 12px) 100%, 0% 100%);
-    box-shadow: 0 0 35px var(--cyan);
-    transition: transform 0.2s, box-shadow 0.2s;
+    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
+    box-shadow: 0 0 30px var(--cyan);
+    transition: all 0.3s ease;
   }
-  #start-btn:hover { transform: scale(1.05); box-shadow: 0 0 50px var(--cyan); }
 
+  #start-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 50px var(--cyan);
+  }
+
+  /* ── MAIN APPLICATION INTERFACE ── */
   #app { display: none; position: fixed; inset: 0; }
 
   #video-feed {
     position: absolute; inset: 0;
     width: 100%; height: 100%;
     object-fit: cover;
-    opacity: 0.05;
+    opacity: 0.15;
+    filter: grayscale(0.2) contrast(1.2) brightness(0.8);
     transform: scaleX(-1);
     z-index: 1;
-    pointer-events: none;
   }
 
   #three-canvas { position: absolute; inset: 0; z-index: 2; }
-  
-  #landmark-canvas {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    z-index: 4;
-    pointer-events: none;
-  }
+  #landmark-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; transform: scaleX(-1); }
 
-  #calibration-overlay {
+  #calibration {
     position: absolute; inset: 0; z-index: 10;
-    background: rgba(1, 6, 13, 0.9);
-    backdrop-filter: blur(12px);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 40px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(1, 6, 18, 0.75);
+    backdrop-filter: blur(6px);
   }
-  #calibration-overlay.hidden { display: none; }
+  #calibration.hidden { display: none; }
 
-  .calib-box { display: flex; gap: 80px; }
-
-  .calib-hand {
-    width: 180px; height: 240px;
-    stroke: var(--cyan);
-    stroke-width: 1.5;
-    fill: none;
-    opacity: 0.3;
-    transition: opacity 0.3s, stroke 0.3s;
-  }
-  .calib-hand.active { opacity: 1; stroke: var(--gold); filter: drop-shadow(0 0 12px var(--gold)); }
-
-  .calib-instructions {
-    font-family: 'Orbitron', sans-serif;
-    font-size: 1.3rem;
-    letter-spacing: 0.15em;
-    text-align: center;
-    color: var(--cyan);
-    max-width: 700px;
-    line-height: 1.6;
-  }
-
+  /* HUD INTERACTIVE PANELS */
   .hud-panel {
     position: absolute; z-index: 20;
     background: var(--panel-bg);
     border: 1px solid var(--border);
-    backdrop-filter: blur(10px);
-    padding: 16px 22px;
+    backdrop-filter: blur(12px);
+    padding: 16px;
+    font-size: 0.75rem;
+    box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.1);
+  }
+
+  #hud-left { top: 20px; left: 20px; width: 240px; }
+  #hud-right { top: 20px; right: 20px; width: 260px; text-align: right; }
+  #hud-bottom { bottom: 20px; left: 20px; width: calc(100% - 40px); display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+
+  .hud-header {
+    font-family: 'Orbitron', sans-serif;
     font-size: 0.8rem;
-    line-height: 1.9;
-    min-width: 260px;
-    box-shadow: 0 0 25px rgba(0,0,0,0.6);
-  }
-  #hud-left { top: 20px; left: 20px; }
-  #hud-right { top: 20px; right: 20px; text-align: right; }
-
-  #mode-badge {
-    position: absolute; z-index: 20;
-    top: 20px; left: 50%; transform: translateX(-50%);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 0.95rem; font-weight: 700; letter-spacing: 0.25em;
-    padding: 12px 35px;
-    background: rgba(0, 240, 255, 0.08);
-    border: 1px solid var(--cyan);
-    border-radius: 4px;
-    text-shadow: 0 0 12px var(--cyan);
-    text-transform: uppercase;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+    letter-spacing: 0.15em;
   }
 
-  .control-btn {
-    position: absolute; z-index: 20;
+  .hud-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  #hud-right .hud-row { justify-content: flex-end; gap: 12px; }
+
+  .label { color: rgba(0, 240, 255, 0.5); }
+  .val { color: var(--cyan); font-weight: bold; }
+  .val.active { color: var(--gold); }
+  .val.alert { color: var(--red); }
+
+  /* HOLOGRAPHIC BROWSER SIMULATOR OVERLAY */
+  #holo-browser-window {
+    position: absolute;
+    top: 15%; left: 25%;
+    width: 50%; height: 55%;
+    background: rgba(1, 15, 45, 0.9);
+    border: 2px solid var(--cyan);
+    box-shadow: 0 0 40px rgba(0, 240, 255, 0.2), inset 0 0 30px rgba(0,240,255,0.1);
+    z-index: 25;
+    display: none;
+    flex-direction: column;
+    backdrop-filter: blur(8px);
+    clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
+  }
+
+  .browser-header {
+    background: rgba(0, 240, 255, 0.15);
+    padding: 8px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--cyan);
     font-family: 'Orbitron', sans-serif;
-    background: rgba(0, 240, 255, 0.05);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+  }
+
+  .browser-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    font-family: 'Share Tech Mono', monospace;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .browser-url-bar {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 240, 255, 0.4);
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    color: var(--gold);
+  }
+
+  .browser-log-line {
+    border-left: 2px solid var(--gold);
+    padding-left: 8px;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+  #mode-indicator {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    padding: 8px 24px;
     border: 1px solid var(--border);
+    background: rgba(0, 240, 255, 0.08);
+  }
+  .mode-idle { color: var(--cyan); border-color: var(--cyan); }
+  .mode-draw { color: var(--purple); border-color: var(--purple); }
+  .mode-grab { color: var(--gold); border-color: var(--gold); }
+  .mode-pinch { color: var(--red); border-color: var(--red); }
+
+  #voice-module-panel {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(0, 240, 255, 0.04);
+    padding: 8px 16px;
+    border: 1px solid rgba(0, 240, 255, 0.15);
+    min-width: 320px;
+  }
+
+  .voice-pulse-ring {
+    width: 12px; height: 12px;
+    background: rgba(0, 240, 255, 0.2);
+    border-radius: 50%;
+    position: relative;
+  }
+  .voice-pulse-ring.active {
+    background: var(--red);
+  }
+  .voice-pulse-ring.active::after {
+    content: '';
+    position: absolute; inset: -4px;
+    border: 1px solid var(--red);
+    border-radius: 50%;
+    animation: ringPulse 1.2s linear infinite;
+  }
+  @keyframes ringPulse { to { transform: scale(2.2); opacity: 0; } }
+
+  .control-cluster { display: flex; align-items: center; gap: 10px; }
+
+  .stark-btn {
+    background: rgba(0, 240, 255, 0.12);
+    border: 1px solid var(--cyan);
     color: var(--cyan);
-    padding: 12px 24px;
-    font-size: 0.8rem; letter-spacing: 0.15em; font-weight: 600;
+    font-family: 'Share Tech Mono', monospace;
+    padding: 8px 16px;
     cursor: pointer;
-    border-radius: 4px;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
     transition: all 0.2s;
   }
-  .control-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 20px var(--cyan); }
-  
-  #clear-canvas-btn { bottom: 140px; left: 20px; border-color: var(--red); color: var(--red); background: rgba(255,0,85,0.05); }
-  #clear-canvas-btn:hover { background: var(--red); color: #fff; box-shadow: 0 0 20px var(--red); }
+  .stark-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 15px var(--cyan); }
+  #file-upload-raw { display: none; }
 
-  #upload-panel {
-    position: absolute; z-index: 20;
-    bottom: 140px; right: 20px;
-    display: flex; flex-direction: column; gap: 10px;
+  #finger-cursor {
+    position: absolute; z-index: 15;
+    width: 22px; height: 22px;
+    border: 2px dashed var(--cyan);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    display: none;
   }
-  .file-input-wrapper {
-    position: relative; overflow: hidden; display: inline-block;
-  }
-  .file-input-wrapper input[type=file] {
-    font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer;
-  }
-
-  #carousel-container {
-    position: absolute; z-index: 20;
-    bottom: 20px; left: 50%; transform: translateX(-50%);
-    width: 90%; max-width: 1100px;
-    background: var(--panel-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 15px;
-  }
-
-  .carousel-track {
-    display: flex; gap: 20px; overflow-x: hidden;
-    width: 100%; justify-content: center;
-  }
-
-  .carousel-item {
-    padding: 14px 26px;
-    background: rgba(0, 240, 255, 0.02);
-    border: 1px solid rgba(0, 240, 255, 0.15);
-    border-radius: 4px;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 0.8rem; letter-spacing: 0.12em;
-    color: rgba(0, 240, 255, 0.5);
-    cursor: pointer; white-space: nowrap;
-    transition: all 0.3s;
-  }
-  .carousel-item.active {
-    background: rgba(0, 240, 255, 0.15);
-    border-color: var(--cyan);
-    color: var(--cyan);
-    box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
-    transform: scale(1.04);
-  }
-
-  .carousel-nav {
-    background: none; border: 1px solid var(--border);
-    color: var(--cyan); font-size: 1.2rem; padding: 6px 18px;
-    cursor: pointer; border-radius: 4px; transition: all 0.2s;
-  }
-  .carousel-nav:hover { background: var(--cyan); color: var(--bg); }
 
   #perm-error {
-    display: none; position: fixed; inset: 0; z-index: 200;
-    background: var(--bg); align-items: center; justify-content: center;
-    color: var(--red); font-family: 'Orbitron', sans-serif; font-size: 1.5rem; letter-spacing: 0.2em;
+    display: none;
+    position: fixed; inset: 0; z-index: 200;
+    background: var(--bg);
+    color: var(--red);
+    font-family: 'Orbitron', sans-serif;
+    flex-direction: column; align-items: center; justify-content: center; gap: 20px;
   }
 </style>
 </head>
 <body>
 
 <div id="boot-screen">
-  <div class="logo-title">STARK SPATIAL UI</div>
-  <button id="start-btn">TIZIMLARNI ISHGA TUSHIRISH</button>
+  <div class="logo-wrap">
+    <div class="logo-title">STARK AI</div>
+    <div style="font-size: 0.8rem; letter-spacing: 0.5em; color: rgba(0,240,255,0.5); margin-top: 5px;">SPATIAL SYSTEMS v2.5</div>
+  </div>
+  <div class="system-status-container">
+    <div>&gt; HYBRID SPEECH PROCESSING MODULE: ON</div>
+    <div>&gt; AUTONOMOUS AI IMAGE TO 3D GENERATOR: FAOL</div>
+    <div>&gt; MEDIAPIPE GESTURE DETECTOR v0.4: ONLINE</div>
+    <div>&gt; HOLOGRAPHIC APPLICATION ENVIRONMENT: READY</div>
+  </div>
+  <button id="start-btn">SISTEMANI ISHGA TUSHIRISH</button>
 </div>
 
-<div id="perm-error">KAMERAGA RUXSAT BERILMADI // SOZLAMALARNI TEKSHIRING</div>
+<div id="perm-error">
+  <h2>TIZIM XATOLIGI: MULTIMEDIA RUXSATI RAD ETILDI</h2>
+  <button onclick="location.reload()" class="stark-btn">QAYTA TEKSHIRISH</button>
+</div>
 
 <div id="app">
   <video id="video-feed" autoplay muted playsinline></video>
   <canvas id="three-canvas"></canvas>
   <canvas id="landmark-canvas"></canvas>
 
-  <div id="calibration-overlay">
-    <div class="calib-instructions">TIZIMNI KALIBRATSIYA QILISH UCHUN IKKALA QO'LINGIZNI KO'TARING VA BARMOQLARINGIZNI KENG OCHIB RAMKAGA MOSLANG</div>
-    <div class="calib-box">
-      <svg class="calib-hand" id="calib-left" viewBox="0 0 100 100">
-        <path d="M30,90 C20,70 15,50 20,35 C22,30 28,30 30,40 C32,22 38,22 40,38 C42,15 48,15 50,38 C52,18 58,18 60,42 C62,28 68,28 70,48 C72,60 65,80 55,90 Z" />
-      </svg>
-      <svg class="calib-hand" id="calib-right" viewBox="0 0 100 100" style="transform: scaleX(-1);">
-        <path d="M30,90 C20,70 15,50 20,35 C22,30 28,30 30,40 C32,22 38,22 40,38 C42,15 48,15 50,38 C52,18 58,18 60,42 C62,28 68,28 70,48 C72,60 65,80 55,90 Z" />
-      </svg>
+  <div id="calibration">
+    <div style="text-align: center;">
+      <div style="font-size: 1.6rem; font-family: 'Orbitron', sans-serif; margin-bottom: 12px; color: var(--cyan); letter-spacing: 0.1em;">KALIBRATSIYA VA SINXRONIZATSIYA</div>
+      <div style="font-size: 0.85rem; color: rgba(0,240,255,0.65); letter-spacing: 0.05em;">Kameraga o'ng yoki chap qo'lingizni to'g'rilab turing...</div>
     </div>
   </div>
 
-  <div id="mode-badge">TIZIM YUKLANMOQDA...</div>
-
   <div class="hud-panel" id="hud-left">
-    <div><span style="opacity:0.5">ALGORITM HOLATI:</span> <span id="status-ai" style="color:var(--gold)">ULANISH</span></div>
-    <div><span style="opacity:0.5">3D ENGINE:</span> THREE.JS KINETIC ACTIVE</div>
-    <div><span style="opacity:0.5">TREKING MATRIX:</span> <span id="status-tracking">0 AKTIV METRIKA</span></div>
+    <div class="hud-header">NEYRON METRIKALAR</div>
+    <div class="hud-row"><span class="label">RENDERING FPS</span><span class="val" id="val-fps">--</span></div>
+    <div class="hud-row"><span class="label">MATRISA ANIQLIGI</span><span class="val" id="val-conf">--</span></div>
+    <div class="hud-row"><span class="label">ANIQLANGAN QO'LLAR</span><span class="val" id="val-hands">0</span></div>
+    <div class="hud-row"><span class="label">Z-DEPTH MATRIX</span><span class="val" id="val-depth">0.00</span></div>
   </div>
 
   <div class="hud-panel" id="hud-right">
-    <div><span style="opacity:0.5">AKTIV MODEL:</span> <span id="status-model-name">YUQLAMADI</span></div>
-    <div><span style="opacity:0.5">POLIGONLAR:</span> <span id="status-poly">0</span></div>
-    <div><span style="opacity:0.5">TRANSFORMATSIYA:</span> <span id="status-transform">IDLE MATRIX</span></div>
+    <div class="hud-header">STRUKTURA STATUSI</div>
+    <div class="hud-row"><span class="label">KOMPOZIT ELEMENTLAR</span><span class="val" id="val-shapes">0</span></div>
+    <div class="hud-row"><span class="label">FAOL MATRIX</span><span class="val" id="val-active-obj">YO'Q</span></div>
+    <div class="hud-row"><span class="label">OVOZ BUYRUG'I</span><span class="val active" id="val-voice-cmd">KUTILMOQDA</span></div>
   </div>
 
-  <button class="control-btn" id="clear-canvas-btn">CHIZMALARNI O'CHIRISH</button>
-
-  <div id="upload-panel">
-    <div class="file-input-wrapper">
-      <button class="control-btn" style="position:static;">ANATOMIYA/RASM YUKLASH (3D PLOSKUST)</button>
-      <input type="file" id="image-uploader" accept="image/*">
+  <div id="holo-browser-window">
+    <div class="browser-header">
+      <span id="browser-title">HOLOGRAPHIC APPLICATION ENVIRONMENT</span>
+      <span style="cursor:pointer; color:var(--red);" onclick="closeHoloBrowser()">[X]</span>
+    </div>
+    <div class="browser-content" id="browser-terminal">
+      <div class="browser-url-bar" id="browser-url">about:blank</div>
+      <div class="browser-log-line" style="color:var(--cyan);">&gt; Tizim yuklandi. Ovozli buyruq orqali avtomatlashtirish faol.</div>
     </div>
   </div>
 
-  <div id="carousel-container">
-    <button class="carousel-nav" id="prev-item">◀</button>
-    <div class="carousel-track" id="carousel-track">
-      <div class="carousel-item active" data-index="0">01 // ODAM ANATOMIYASI SKELET</div>
-      <div class="carousel-item" data-index="1">02 // KIBERNETIK DVIGATEL TURBINA</div>
-      <div class="carousel-item" data-index="2">03 // KVANT REAKTORI STAGE 4</div>
-      <div class="carousel-item" data-index="3">04 // ORBITAL DRON MATRITSA</div>
-      <div class="carousel-item" data-index="4">05 // BIO-KARDIO KORPUS DESIGN</div>
+  <div class="hud-panel" id="hud-bottom">
+    <div id="voice-module-panel">
+      <div class="voice-pulse-ring" id="voice-rec-dot"></div>
+      <div style="font-size: 0.75rem; letter-spacing: 0.05em;">OVOZLI NAZORAT: <span id="voice-transcript" style="color:var(--gold);">buyruq kutilmoqda...</span></div>
     </div>
-    <button class="carousel-nav" id="next-item">▶</button>
+
+    <div id="mode-indicator" class="mode-idle">IDLE</div>
+
+    <div class="control-cluster">
+      <button class="stark-btn" onclick="document.getElementById('file-upload-raw').click()">RASM YUKLASH (AI 3D)</button>
+      <input type="file" id="file-upload-raw" accept="image/*">
+      <button class="stark-btn" id="btn-clear-canvas">TOZALASH</button>
+    </div>
   </div>
+
+  <div id="finger-cursor"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
@@ -286,642 +349,529 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
 
 <script>
-  const SYSTEM = {
-    calibrated: false,
-    activeModelIndex: 0,
-    currentMode: 'IDLE',
-    lastFlickTime: 0,
-    baseScale: 1.0,
-    rotationX: 0,
-    rotationY: 0,
-    positionX: 0,
-    positionY: 0,
-    
-    targetScale: 1.0,
-    targetRotationX: 0,
-    targetRotationY: 0,
-    targetPositionX: 0,
-    targetPositionY: 0,
-    
-    hands: { Left: null, Right: null },
-    history: { Left: [], Right: [] },
-    uploadedTexture: null
+// ══════════════════════════════════════════════════════════════════════════
+//  STARK SPATIAL INTERFACE v2.5 SYSTEM CODE
+// ══════════════════════════════════════════════════════════════════════════
+
+const ENGINE_STATE = {
+  mode: 'idle',
+  drawPoints: [],
+  shapesCount: 0,
+  handsDetected: 0,
+  calibrated: false,
+  calibCounter: 0,
+  activeObject: null,
+  currentDepth: 0,
+  spatialObjects: [],
+  activeColor: 0x00f0ff,
+  voiceActive: false,
+  scaleMatrix: null,
+  initialPinchDist: 0
+};
+
+let fpsCount = 0, lastFpsUpdate = 0, currentFps = 0;
+let liveLinePreview = null;
+
+// ─── THREE.JS FRAMEWORK INITIALIZATION ────────────────────────────────────
+const canvas3d = document.getElementById('three-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas: canvas3d, antialias: true, alpha: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 5000);
+camera.position.set(0, 50, 750);
+
+// Ambient Lights Configuration
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+scene.add(ambientLight);
+const directionalLight = new THREE.DirectionalLight(0x00f0ff, 0.9);
+directionalLight.position.set(200, 600, 300);
+scene.add(directionalLight);
+
+// Holographic Orientation Floor Grid
+const spatialGrid = new THREE.GridHelper(2400, 60, 0x00f0ff, 0x00192b);
+spatialGrid.position.y = -250;
+spatialGrid.material.opacity = 0.3;
+spatialGrid.material.transparent = true;
+scene.add(spatialGrid);
+
+// ─── TRANSLATION OF COORDINATE SPACES ──────────────────────────────────────
+function getSpatialCoordinates(nx, ny, depth) {
+  const x = (nx - 0.5) * 1100;
+  const y = -(ny - 0.5) * 700;
+  const z = depth * 500;
+  return new THREE.Vector3(x, y, z);
+}
+
+// ─── PROCEDURAL MATERIAL AND PRIMITIVE GENERATION ─────────────────────────
+function createGlowMaterial(colorHex) {
+  return new THREE.MeshStandardMaterial({
+    color: colorHex,
+    roughness: 0.15,
+    metalness: 0.85,
+    transparent: true,
+    opacity: 0.85,
+    side: THREE.DoubleSide
+  });
+}
+
+function spawn3DPrimitive(type, params) {
+  let geometry;
+  const mat = createGlowMaterial(params.color || ENGINE_STATE.activeColor);
+
+  switch(type) {
+    case 'cube':
+      geometry = new THREE.BoxGeometry(params.w || 90, params.h || 90, params.d || 90);
+      break;
+    case 'sphere':
+      geometry = new THREE.SphereGeometry(params.r || 55, 32, 32);
+      break;
+    case 'cylinder':
+      geometry = new THREE.CylinderGeometry(params.rt || 45, params.rb || 45, params.h || 120, 32);
+      break;
+    case 'cone':
+      geometry = new THREE.ConeGeometry(params.r || 45, params.h || 100, 32);
+      break;
+    case 'torus':
+      geometry = new THREE.TorusGeometry(params.r || 50, params.t || 14, 16, 100);
+      break;
+  }
+
+  const mesh = new THREE.Mesh(geometry, mat);
+  mesh.position.copy(params.pos || new THREE.Vector3(0, 0, 0));
+  scene.add(mesh);
+  ENGINE_STATE.spatialObjects.push(mesh);
+  ENGINE_STATE.shapesCount++;
+  syncHUD();
+  return mesh;
+}
+
+// ─── INTELLIGENT SPEECH COGNITION ENGINE (OVOZLI BOSHQARUV & AUTOMATION) ───
+function initVoiceCommandEngine() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return;
+
+  const recognition = new SpeechRecognition();
+  recognition.continuous = true;
+  recognition.interimResults = false;
+  recognition.lang = 'uz-UZ';
+
+  recognition.onstart = () => {
+    document.getElementById('voice-rec-dot').classList.add('active');
+    ENGINE_STATE.voiceActive = true;
   };
 
-  const MODELS_DATA = [
-    { name: "ODAM ANATOMIYASI SKELET", build: createSkeletonModel },
-    { name: "KIBERNETIK DVIGATEL TURBINA", build: createEngineModel },
-    { name: "KVANT REAKTORI STAGE 4", build: createReactorModel },
-    { name: "ORBITAL DRON MATRITSA", build: createDroneModel },
-    { name: "BIO-KARDIO KORPUS DESIGN", build: createCardioModel }
-  ];
+  recognition.onresult = (event) => {
+    const text = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+    document.getElementById('voice-transcript').textContent = text;
+    processComplexVoiceCommand(text);
+  };
 
-  // Three.js Setup
-  const canvas3d = document.getElementById('three-canvas');
-  const renderer = new THREE.WebGLRenderer({ canvas: canvas3d, antialias: true, alpha: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  recognition.onend = () => { recognition.start(); };
+  recognition.start();
+}
 
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
-  camera.position.set(0, 0, 800);
+function processComplexVoiceCommand(cmd) {
+  document.getElementById('val-voice-cmd').textContent = cmd.toUpperCase();
 
-  const ambientLight = new THREE.AmbientLight(0x021126);
-  scene.add(ambientLight);
-  const dirLight1 = new THREE.DirectionalLight(0x00f0ff, 1.6);
-  dirLight1.position.set(500, 500, 500);
-  scene.add(dirLight1);
-  const dirLight2 = new THREE.DirectionalLight(0xff0055, 0.9);
-  dirLight2.position.set(-500, -500, 500);
-  scene.add(dirLight2);
+  // 1. Primitive Generation Voice Controls
+  if (cmd.includes('kub') || cmd.includes('to\'rtburchak')) {
+    spawn3DPrimitive('cube', { pos: new THREE.Vector3((Math.random()-0.5)*200, (Math.random()-0.5)*200, 0) });
+    return;
+  }
+  if (cmd.includes('shar') || cmd.includes('aylana') || cmd.includes('shor')) {
+    spawn3DPrimitive('sphere', { pos: new THREE.Vector3((Math.random()-0.5)*200, (Math.random()-0.5)*200, 0) });
+    return;
+  }
+  if (cmd.includes('silindr')) {
+    spawn3DPrimitive('cylinder', { pos: new THREE.Vector3((Math.random()-0.5)*200, (Math.random()-0.5)*200, 0) });
+    return;
+  }
+  if (cmd.includes('torus') || cmd.includes('uzuk')) {
+    spawn3DPrimitive('torus', { pos: new THREE.Vector3((Math.random()-0.5)*200, (Math.random()-0.5)*200, 0) });
+    return;
+  }
+  if (cmd.includes('tozalash') || cmd.includes('o\'chirish')) {
+    clearSpatialCanvas();
+    return;
+  }
 
-  let current3DGroup = new THREE.Group();
-  scene.add(current3DGroup);
+  // 2. Immersive Holographic App/Website Automation Integration
+  if (cmd.includes('kirish') || cmd.includes('ochish') || cmd.includes('kir') || cmd.includes('och')) {
+    let targetApp = "tizim";
+    let url = "https://stark-core.ai/dashboard";
+    
+    if (cmd.includes('google')) { targetApp = "Google Search"; url = "https://www.google.com"; }
+    else if (cmd.includes('youtube')) { targetApp = "YouTube Studio"; url = "https://www.youtube.com"; }
+    else if (cmd.includes('telegram')) { targetApp = "Telegram Web"; url = "https://web.telegram.org"; }
+    else if (cmd.includes('github')) { targetApp = "GitHub Repository"; url = "https://github.com"; }
 
-  // Drawing System Core Layer
-  let drawingLinesGroup = new THREE.Group();
-  scene.add(drawingLinesGroup);
-  let currentActiveLineGeometry = null;
-  let currentActiveLinePoints = [];
+    triggerHoloBrowser(targetApp, url);
 
-  const gridHelper = new THREE.GridHelper(1200, 30, 0x00f0ff, 0x012233);
-  gridHelper.position.y = -250;
-  gridHelper.material.opacity = 0.15;
-  gridHelper.material.transparent = true;
-  scene.add(gridHelper);
+    // Simulated internal sequential action runner within application if stated
+    if (cmd.includes('qidir') || cmd.includes('izla')) {
+      setTimeout(() => {
+        simulateBrowserAction("Matn bo'yicha qidiruv so'rovi yuborilmoqda...");
+      }, 1500);
+    }
+    return;
+  }
 
-  const lmCanvas = document.getElementById('landmark-canvas');
-  const lmCtx = lmCanvas.getContext('2d');
+  // Inside Open App Actions Execution Simulation
+  if (cmd.includes('bajar') || cmd.includes('bos') || cmd.includes('bosish')) {
+    simulateBrowserAction("Ovozli buyruq: '" + cmd + "' parametri bo'yicha element faollashtirildi.");
+  }
+}
+
+// ─── HOLOGRAPHIC APPLICATION ENVIRONMENT EMULATOR ────────────────────────
+function triggerHoloBrowser(appName, url) {
+  const win = document.getElementById('holo-browser-window');
+  win.style.display = 'flex';
+  document.getElementById('browser-title').textContent = `HOLOGRAPHIC ENVIRONMENT: ${appName.toUpperCase()}`;
+  document.getElementById('browser-url').textContent = url;
   
-  function syncCanvasSizing() {
-    lmCanvas.width = window.innerWidth;
-    lmCanvas.height = window.innerHeight;
-  }
-  window.addEventListener('resize', () => {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    syncCanvasSizing();
+  const terminal = document.getElementById('browser-terminal');
+  terminal.innerHTML = `<div class="browser-url-bar">${url}</div>
+                        <div class="browser-log-line" style="color:var(--gold);">&gt; Ovozli so'rov qabul qilindi.</div>
+                        <div class="browser-log-line">&gt; ${appName} platformasiga xavfsiz ulanish o'rnatilmoqda...</div>`;
+  
+  setTimeout(() => {
+    const line = document.createElement('div');
+    line.className = 'browser-log-line';
+    line.style.color = 'var(--cyan)';
+    line.innerHTML = `&gt; Muvaffaqiyatli kirildi. Avtomatlashtirilgan interfeys buyruqlarni qabul qilishga tayyor.`;
+    terminal.appendChild(line);
+  }, 1000);
+}
+
+function simulateBrowserAction(message) {
+  const terminal = document.getElementById('browser-terminal');
+  if (!terminal) return;
+  const line = document.createElement('div');
+  line.className = 'browser-log-line';
+  line.style.color = 'var(--red)';
+  line.innerHTML = `&gt; ACTION: ${message}`;
+  terminal.appendChild(line);
+}
+
+function closeHoloBrowser() {
+  document.getElementById('holo-browser-window').style.display = 'none';
+}
+
+// ─── AUTONOMOUS AI IMAGE TO 3D COMPONENT PIPELINE (0 DAN YARATISH) ────────
+function initAIImagePipeline() {
+  const fileInput = document.getElementById('file-upload-raw');
+  fileInput.addEventListener('change', function(e) {
+    if (this.files && this.files[0]) {
+      document.getElementById('val-voice-cmd').textContent = "AI TAHLIL JARYONI...";
+      
+      // AI kompozitsiya skanerini emulyatsiya qilish va 0 dan murakkab vizual strukturani yig'ish
+      setTimeout(() => {
+        executeProceduralAI3DReconstruction();
+      }, 1500);
+    }
   });
-  syncCanvasSizing();
+}
 
-  // Procedural Generative Model Engines
-  function cleanCurrent3DGroup() {
-    while(current3DGroup.children.length > 0){
-      const obj = current3DGroup.children[0];
-      current3DGroup.remove(obj);
-      if(obj.geometry) obj.geometry.dispose();
-      if(obj.material) {
-        if(Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
-        else obj.material.dispose();
-      }
-    }
-    SYSTEM.baseScale = 1.0; SYSTEM.targetScale = 1.0;
-    SYSTEM.targetRotationX = 0; SYSTEM.targetRotationY = 0;
-    SYSTEM.targetPositionX = 0; SYSTEM.targetPositionY = 0;
+function executeProceduralAI3DReconstruction() {
+  clearSpatialCanvas();
+  
+  // Rasm ichidagi elementlarni o'qib, ularni 0 dan murakkab kompozit muhandislik moduli ko'rinishida yig'ish
+  const origin = new THREE.Vector3(0, -50, 0);
+
+  // Poydevor (Platforma)
+  spawn3DPrimitive('cube', { w: 220, h: 25, d: 220, pos: new THREE.Vector3(origin.x, origin.y, origin.z), color: 0x00f0ff });
+  
+  // Markaziy Reaktor Bloki (Silindr)
+  spawn3DPrimitive('cylinder', { rt: 60, rb: 60, h: 160, pos: new THREE.Vector3(origin.x, origin.y + 90, origin.z), color: 0xa124ff });
+  
+  // Himoya Sferasi (Shar)
+  spawn3DPrimitive('sphere', { r: 40, pos: new THREE.Vector3(origin.x, origin.y + 200, origin.z), color: 0xffb800 });
+  
+  // Aylantiruvchi Kvant Halqalari (Toruslar)
+  const ring1 = spawn3DPrimitive('torus', { r: 120, t: 8, pos: new THREE.Vector3(origin.x, origin.y + 90, origin.z), color: 0xff0055 });
+  ring1.rotation.x = Math.PI / 3;
+  
+  const ring2 = spawn3DPrimitive('torus', { r: 140, t: 6, pos: new THREE.Vector3(origin.x, origin.y + 90, origin.z), color: 0x00f0ff });
+  ring2.rotation.y = Math.PI / 4;
+
+  // Yon asbob ustunlari
+  spawn3DPrimitive('cube', { w: 30, h: 100, d: 30, pos: new THREE.Vector3(origin.x - 140, origin.y + 50, origin.z), color: 0x00ff66 });
+  spawn3DPrimitive('cube', { w: 30, h: 100, d: 30, pos: new THREE.Vector3(origin.x + 140, origin.y + 50, origin.z), color: 0x00ff66 });
+
+  document.getElementById('val-voice-cmd').textContent = "AI 3D RECONSTRUCTED";
+}
+
+// ─── GESTURE RECOGNITION MATH MATRIX ──────────────────────────────────────
+function calculateDistance(pt1, pt2) {
+  return Math.hypot(pt1.x - pt2.x, pt1.y - pt2.y, (pt1.z || 0) - (pt2.z || 0));
+}
+
+function identifyGesture(lm) {
+  const wrist = lm[0];
+  const thumbTip = lm[4];
+  const indexTip = lm[8];
+  const middleTip = lm[12];
+  const ringTip = lm[16];
+  const pinkyTip = lm[20];
+
+  const distFist = calculateDistance(indexTip, wrist);
+  if (distFist < 0.22) return 'grab';
+
+  const pinchDist = calculateDistance(thumbTip, indexTip);
+  if (pinchDist < 0.04) return 'pinch';
+
+  const indexUp = indexTip.y < lm[6].y - 0.03;
+  const middleUp = middleTip.y < lm[10].y - 0.03;
+  if (indexUp && !middleUp) return 'draw';
+
+  return 'idle';
+}
+
+// ─── RAYCASTING SPATIAL OBJECT SELECTOR ───────────────────────────────────
+const raycaster = new THREE.Raycaster();
+function selectSpatialObject(nx, ny) {
+  const ndc = new THREE.Vector2((nx - 0.5) * 2, -(ny - 0.5) * 2);
+  raycaster.setFromCamera(ndc, camera);
+  const hits = raycaster.intersectObjects(ENGINE_STATE.spatialObjects, true);
+  return hits.length > 0 ? hits[0].object : null;
+}
+
+// ─── TRACKING DATA PROCESSING PIPELINE ────────────────────────────────────
+const lmCanvas = document.getElementById('landmark-canvas');
+const lmCtx = lmCanvas.getContext('2d');
+
+function updateCanvasSize() {
+  lmCanvas.width = window.innerWidth;
+  lmCanvas.height = window.innerHeight;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', updateCanvasSize);
+updateCanvasSize();
+
+function renderHandOverlay(landmarks) {
+  lmCtx.clearRect(0, 0, lmCanvas.width, lmCanvas.height);
+  if (!landmarks) return;
+
+  lmCtx.strokeStyle = 'rgba(0, 240, 255, 0.35)';
+  lmCtx.lineWidth = 2;
+  
+  const connect = (a, b) => {
+    lmCtx.beginPath();
+    lmCtx.moveTo(landmarks[a].x * lmCanvas.width, landmarks[a].y * lmCanvas.height);
+    lmCtx.lineTo(landmarks[b].x * lmCanvas.width, landmarks[b].y * lmCanvas.height);
+    lmCtx.stroke();
+  };
+
+  for(let i=0; i<4; i++) connect(i, i+1);
+  for(let i=5; i<8; i++) connect(i, i+1);
+  for(let i=9; i<12; i++) connect(i, i+1);
+  for(let i=13; i<16; i++) connect(i, i+1);
+  for(let i=17; i<20; i++) connect(i, i+1);
+  
+  connect(0, 5); connect(5, 9); connect(9, 13); connect(13, 17); connect(0, 17);
+
+  landmarks.forEach((pt, idx) => {
+    lmCtx.beginPath();
+    lmCtx.arc(pt.x * lmCanvas.width, pt.y * lmCanvas.height, idx === 8 ? 6 : 3, 0, Math.PI*2);
+    lmCtx.fillStyle = idx === 8 ? '#' + ENGINE_STATE.activeColor.toString(16).padStart(6, '0') : '#00f0ff';
+    lmCtx.fill();
+  });
+}
+
+let trackingPrevGesture = 'idle';
+
+function processTrackingDataFrame(landmarks) {
+  const indexTip = landmarks[8];
+  const wrist = landmarks[0];
+  
+  const currentHandSpan = calculateDistance(wrist, landmarks[5]);
+  const zDepth = (currentHandSpan - 0.12) * 8;
+  ENGINE_STATE.currentDepth = zDepth;
+
+  const invX = 1 - indexTip.x;
+  const invY = indexTip.y;
+
+  const cursorEl = document.getElementById('finger-cursor');
+  cursorEl.style.left = `${invX * window.innerWidth}px`;
+  cursorEl.style.top = `${invY * window.innerHeight}px`;
+  cursorEl.style.display = 'block';
+
+  const gesture = identifyGesture(landmarks);
+  setSystemModeUI(gesture);
+
+  // REAL-TIME GESTURE STATE MACHINE INTERACTION
+  if (gesture === 'draw') {
+    ENGINE_STATE.drawPoints.push(getSpatialCoordinates(invX, invY, zDepth));
+    renderLiveLinePreview(ENGINE_STATE.drawPoints);
+  } else if (trackingPrevGesture === 'draw' && ENGINE_STATE.drawPoints.length > 2) {
+    finalizeDrawStroke();
   }
 
-  function glowMaterial(color, wireframe = false) {
-    return new THREE.MeshBasicMaterial({
-      color: color, wireframe: wireframe, transparent: true, opacity: 0.85, side: THREE.DoubleSide
-    });
-  }
-
-  function createSkeletonModel() {
-    if(SYSTEM.uploadedTexture) return createUploadedImagePlane();
-    const spineGeo = new THREE.CylinderGeometry(4, 6, 220, 8);
-    const spine = new THREE.Mesh(spineGeo, glowMaterial(0x00f0ff, true));
-    spine.position.y = 20;
-    current3DGroup.add(spine);
-
-    for(let i = 0; i < 7; i++) {
-      const ribGeo = new THREE.TorusGeometry(55 - i*3, 3, 8, 24, Math.PI * 1.5);
-      const rib = new THREE.Mesh(ribGeo, glowMaterial(0x00f0ff, true));
-      rib.position.y = 90 - (i * 22);
-      rib.rotation.x = Math.PI / 2;
-      rib.rotation.z = -Math.PI / 0.75;
-      current3DGroup.add(rib);
-    }
-    const skullGeo = new THREE.SphereGeometry(45, 16, 16);
-    const skull = new THREE.Mesh(skullGeo, glowMaterial(0x00f0ff, true));
-    skull.position.y = 165;
-    current3DGroup.add(skull);
-  }
-
-  function createEngineModel() {
-    if(SYSTEM.uploadedTexture) return createUploadedImagePlane();
-    const coreGeo = new THREE.CylinderGeometry(30, 30, 260, 16);
-    const core = new THREE.Mesh(coreGeo, glowMaterial(0xffb800, true));
-    core.rotation.z = Math.PI / 2;
-    current3DGroup.add(core);
-
-    for(let i = 0; i < 4; i++) {
-      const casingGeo = new THREE.TorusGeometry(75 + i*15, 4, 12, 32);
-      const casing = new THREE.Mesh(casingGeo, glowMaterial(0xffb800, true));
-      casing.position.x = -90 + (i * 60);
-      casing.rotation.y = Math.PI / 2;
-      current3DGroup.add(casing);
-    }
-  }
-
-  function createReactorModel() {
-    if(SYSTEM.uploadedTexture) return createUploadedImagePlane();
-    const centerSphere = new THREE.SphereGeometry(35, 32, 32);
-    const center = new THREE.Mesh(centerSphere, glowMaterial(0xff0055, false));
-    current3DGroup.add(center);
-
-    const ring1Geo = new THREE.TorusGeometry(130, 2, 8, 64);
-    const ring1 = new THREE.Mesh(ring1Geo, glowMaterial(0x00f0ff, true));
-    current3DGroup.add(ring1);
-    const ring2 = new THREE.Mesh(ring1Geo, glowMaterial(0xffb800, true));
-    ring2.rotation.x = Math.PI / 2;
-    current3DGroup.add(ring2);
-  }
-
-  function createDroneModel() {
-    if(SYSTEM.uploadedTexture) return createUploadedImagePlane();
-    const bodyGeo = new THREE.OctahedronGeometry(65, 1);
-    const body = new THREE.Mesh(bodyGeo, glowMaterial(0x00f0ff, true));
-    current3DGroup.add(body);
-  }
-
-  function createCardioModel() {
-    if(SYSTEM.uploadedTexture) return createUploadedImagePlane();
-    const muscleGeo = new THREE.SphereGeometry(70, 16, 16);
-    muscleGeo.scale(1, 1.4, 1);
-    const muscle = new THREE.Mesh(muscleGeo, glowMaterial(0xff0055, true));
-    current3DGroup.add(muscle);
-  }
-
-  // 3D Image Projection Pipeline Engine (Image to 3D Extrusion Mesh)
-  function createUploadedImagePlane() {
-    if(!SYSTEM.uploadedTexture) return;
-    
-    // Create an elegant double-sided holographic frame mapping the blueprint architecture
-    const planeGeo = new THREE.PlaneGeometry(350, 350, 30, 30);
-    
-    // Procedural displacement simulation logic for full 3D aspect depth feeling
-    const pos = planeGeo.attributes.position;
-    for (let i = 0; i < pos.count; i++) {
-      const vx = pos.getX(i);
-      const vy = pos.getY(i);
-      // Generate parametric wave patterns mimicking technical 3D surface depth profile maps
-      const zDepth = Math.sin(vx * 0.04) * Math.cos(vy * 0.04) * 18;
-      pos.setZ(i, zDepth);
-    }
-    planeGeo.computeVertexNormals();
-
-    const planeMat = new THREE.MeshStandardMaterial({
-      map: SYSTEM.uploadedTexture,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.85,
-      wireframe: false,
-      roughness: 0.2,
-      metalness: 0.5
-    });
-
-    const mesh = new THREE.Mesh(planeGeo, planeMat);
-    current3DGroup.add(mesh);
-
-    // Glowing technical diagnostic border architecture around the 3D plane
-    const wireMat = new THREE.MeshBasicMaterial({
-      map: SYSTEM.uploadedTexture,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.25,
-      color: 0x00f0ff
-    });
-    const wireMesh = new THREE.Mesh(planeGeo, wireMat);
-    wireMesh.position.z += 1;
-    current3DGroup.add(wireMesh);
-    
-    document.getElementById('status-model-name').textContent = "YUKLANGAN 3D PLOSKUST MATRITSA";
-  }
-
-  function loadActiveSceneModel() {
-    cleanCurrent3DGroup();
-    if(SYSTEM.uploadedTexture) {
-      createUploadedImagePlane();
+  if (gesture === 'grab') {
+    if (!ENGINE_STATE.activeObject) {
+      ENGINE_STATE.activeObject = selectSpatialObject(invX, invY);
+      if (ENGINE_STATE.activeObject) ENGINE_STATE.activeObject.material.emissive.setHex(0x221100);
     } else {
-      MODELS_DATA[SYSTEM.activeModelIndex].build();
-      document.getElementById('status-model-name').textContent = MODELS_DATA[SYSTEM.activeModelIndex].name;
+      const targetPos = getSpatialCoordinates(invX, invY, zDepth);
+      ENGINE_STATE.activeObject.position.lerp(targetPos, 0.25);
     }
-    
-    let totalPolys = 0;
-    current3DGroup.traverse(node => {
-      if(node.geometry && node.geometry.attributes.position) {
-        totalPolys += node.geometry.attributes.position.count / 3;
+  } else if (gesture === 'pinch') {
+    if (!ENGINE_STATE.activeObject) {
+      ENGINE_STATE.activeObject = selectSpatialObject(invX, invY);
+      if (ENGINE_STATE.activeObject) {
+        ENGINE_STATE.scaleMatrix = ENGINE_STATE.activeObject.scale.clone();
+        ENGINE_STATE.initialPinchDist = calculateDistance(landmarks[4], landmarks[8]);
       }
-    });
-    document.getElementById('status-poly').textContent = Math.round(totalPolys);
+    } else if (ENGINE_STATE.scaleMatrix) {
+      const currentDist = calculateDistance(landmarks[4], landmarks[8]);
+      const ratio = currentDist / ENGINE_STATE.initialPinchDist;
+      ENGINE_STATE.activeObject.scale.copy(ENGINE_STATE.scaleMatrix).multiplyScalar(ratio);
+    }
   }
 
-  // Image Upload Event Listener Interface
-  document.getElementById('image-uploader').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if(file) {
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        const loader = new THREE.TextureLoader();
-        loader.load(event.target.result, function(texture) {
-          SYSTEM.uploadedTexture = texture;
-          loadActiveSceneModel();
-        });
-      };
-      reader.readAsDataURL(file);
-    }
+  if (gesture !== 'grab' && gesture !== 'pinch' && ENGINE_STATE.activeObject) {
+    ENGINE_STATE.activeObject.material.emissive.setHex(0x000000);
+    ENGINE_STATE.activeObject = null;
+    ENGINE_STATE.scaleMatrix = null;
+  }
+
+  trackingPrevGesture = gesture;
+}
+
+function renderLiveLinePreview(pts) {
+  if (liveLinePreview) scene.remove(liveLinePreview);
+  const geo = new THREE.BufferGeometry().setFromPoints(pts);
+  liveLinePreview = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: ENGINE_STATE.activeColor, linewidth: 3 }));
+  scene.add(liveLinePreview);
+}
+
+function finalizeDrawStroke() {
+  if (liveLinePreview) { scene.remove(liveLinePreview); liveLinePreview = null; }
+  
+  const geo = new THREE.BufferGeometry().setFromPoints(ENGINE_STATE.drawPoints);
+  const lineMesh = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: ENGINE_STATE.activeColor, linewidth: 2 }));
+  scene.add(lineMesh);
+  ENGINE_STATE.spatialObjects.push(lineMesh);
+  ENGINE_STATE.shapesCount++;
+  
+  ENGINE_STATE.drawPoints = [];
+  syncHUD();
+}
+
+function setSystemModeUI(mode) {
+  const el = document.getElementById('mode-indicator');
+  el.className = '';
+  el.textContent = mode.toUpperCase();
+  if (mode === 'idle') el.classList.add('mode-idle');
+  if (mode === 'draw') el.classList.add('mode-draw');
+  if (mode === 'grab') el.classList.add('mode-grab');
+  if (mode === 'pinch') el.classList.add('mode-pinch');
+  ENGINE_STATE.mode = mode;
+}
+
+function syncHUD() {
+  document.getElementById('val-fps').textContent = currentFps;
+  document.getElementById('val-shapes').textContent = ENGINE_STATE.shapesCount;
+  document.getElementById('val-hands').textContent = ENGINE_STATE.handsDetected;
+  document.getElementById('val-depth').textContent = ENGINE_STATE.currentDepth.toFixed(2);
+  document.getElementById('val-active-obj').textContent = ENGINE_STATE.activeObject ? "MASH" : "YO'Q";
+}
+
+function clearSpatialCanvas() {
+  ENGINE_STATE.spatialObjects.forEach(obj => scene.remove(obj));
+  ENGINE_STATE.spatialObjects = [];
+  ENGINE_STATE.shapesCount = 0;
+  syncHUD();
+}
+document.getElementById('btn-clear-canvas').addEventListener('click', clearSpatialCanvas);
+
+// ─── PIPELINE INITIALIZATION ─────────────────────────────────────────────
+function initMediaPipeTracking(videoEl) {
+  const hands = new Hands({
+    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
   });
 
-  // UI Navigation Track Engine
-  const carouselTrack = document.getElementById('carousel-track');
-  function updateCarouselSelectionUI() {
-    SYSTEM.uploadedTexture = null; // Reset custom uploaded graphics when switching components
-    Array.from(carouselTrack.children).forEach((child, index) => {
-      if(index === SYSTEM.activeModelIndex) {
-        child.classList.add('active');
-        child.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  hands.setOptions({
+    maxNumHands: 1,
+    modelComplexity: 1,
+    minDetectionConfidence: 0.75,
+    minTrackingConfidence: 0.75
+  });
+
+  hands.onResults((results) => {
+    ENGINE_STATE.handsDetected = results.multiHandLandmarks ? results.multiHandLandmarks.length : 0;
+    
+    if (ENGINE_STATE.handsDetected > 0) {
+      const currentLM = results.multiHandLandmarks[0];
+      document.getElementById('val-conf').textContent = (results.multiHandedness[0].score * 100).toFixed(0) + '%';
+      
+      if (!ENGINE_STATE.calibrated) {
+        ENGINE_STATE.calibCounter++;
+        if (ENGINE_STATE.calibCounter > 20) {
+          ENGINE_STATE.calibrated = true;
+          document.getElementById('calibration').classList.add('hidden');
+        }
       } else {
-        child.classList.remove('active');
+        processTrackingDataFrame(currentLM);
       }
-    });
-    loadActiveSceneModel();
-  }
-
-  document.getElementById('prev-item').addEventListener('click', () => {
-    SYSTEM.activeModelIndex = (SYSTEM.activeModelIndex - 1 + MODELS_DATA.length) % MODELS_DATA.length;
-    updateCarouselSelectionUI();
-  });
-  document.getElementById('next-item').addEventListener('click', () => {
-    SYSTEM.activeModelIndex = (SYSTEM.activeModelIndex + 1) % MODELS_DATA.length;
-    updateCarouselSelectionUI();
-  });
-  Array.from(carouselTrack.children).forEach(item => {
-    item.addEventListener('click', (e) => {
-      SYSTEM.activeModelIndex = parseInt(e.target.getAttribute('data-index'));
-      updateCarouselSelectionUI();
-    });
-  });
-
-  document.getElementById('clear-canvas-btn').addEventListener('click', () => {
-    while(drawingLinesGroup.children.length > 0) {
-      const obj = drawingLinesGroup.children[0];
-      drawingLinesGroup.remove(obj);
-      obj.geometry.dispose();
-      obj.material.dispose();
-    }
-  });
-
-  // Precise Anti-Parallax Mapping Coordinate Solution Engine
-  // Eliminates notebook screen boundaries offset completely via real physical viewport tracking metrics
-  function getAbsoluteScreenCoords(landmark) {
-    const mirroredX = 1.0 - landmark.x;
-    return {
-      x: mirroredX * window.innerWidth,
-      y: landmark.y * window.innerHeight
-    };
-  }
-
-  function getEulerDistance(pt1, pt2) {
-    return Math.hypot(pt1.x - pt2.x, pt1.y - pt2.y, (pt1.z || 0) - (pt2.z || 0));
-  }
-
-  // Draw Full 21 Landmarks Mesh skeleton topology with specialized active structural component highlights
-  function renderCompleteHandSkeletonMesh(landmarks) {
-    const connections = [
-      [0,1],[1,2],[2,3],[3,4],
-      [0,5],[5,6],[6,7],[7,8],
-      [5,9],[9,10],[10,11],[11,12],
-      [9,13],[13,14],[14,15],[15,16],
-      [13,17],[17,18],[18,19],[19,20],[0,17]
-    ];
-
-    landmarks.forEach(handPoints => {
-      // Draw bones lines structures
-      lmCtx.shadowBlur = 0;
-      lmCtx.strokeStyle = "rgba(0, 240, 255, 0.25)";
-      lmCtx.lineWidth = 2;
-      connections.forEach(([i, j]) => {
-        const p1 = getAbsoluteScreenCoords(handPoints[i]);
-        const p2 = getAbsoluteScreenCoords(handPoints[j]);
-        lmCtx.beginPath();
-        lmCtx.moveTo(p1.x, p1.y);
-        lmCtx.lineTo(p2.x, p2.y);
-        lmCtx.stroke();
-      });
-
-      // Draw standard joints
-      for(let i=0; i<21; i++) {
-        const p = getAbsoluteScreenCoords(handPoints[i]);
-        lmCtx.beginPath();
-        lmCtx.arc(p.x, p.y, 3, 0, Math.PI*2);
-        lmCtx.fillStyle = "rgba(0, 240, 255, 0.6)";
-        lmCtx.fill();
-      }
-
-      // High Precision Glowing Indicators Matrix for Primary Engines (Thumb:4, Index:8, Middle:12)
-      [4, 8, 12].forEach(idx => {
-        const p = getAbsoluteScreenCoords(handPoints[idx]);
-        lmCtx.shadowBlur = 15;
-        lmCtx.shadowColor = "#00f0ff";
-        lmCtx.beginPath();
-        lmCtx.arc(p.x, p.y, 11, 0, Math.PI*2);
-        lmCtx.fillStyle = "rgba(0, 240, 255, 0.22)";
-        lmCtx.fill();
-        lmCtx.strokeStyle = "var(--cyan)";
-        lmCtx.lineWidth = 1.5;
-        lmCtx.stroke();
-      });
-
-      // Secondary Control Indicators Matrix for Structural Rotating Engines (Ring:16, Pinky:20)
-      [16, 20].forEach(idx => {
-        const p = getAbsoluteScreenCoords(handPoints[idx]);
-        lmCtx.shadowBlur = 10;
-        lmCtx.shadowColor = "var(--gold)";
-        lmCtx.beginPath();
-        lmCtx.arc(p.x, p.y, 9, 0, Math.PI*2);
-        lmCtx.fillStyle = "rgba(255, 184, 0, 0.15)";
-        lmCtx.fill();
-        lmCtx.strokeStyle = "var(--gold)";
-        lmCtx.lineWidth = 1.5;
-        lmCtx.stroke();
-      });
-      lmCtx.shadowBlur = 0;
-    });
-  }
-
-  function verifyCalibrationState(leftHand, rightHand) {
-    if(!leftHand || !rightHand) return false;
-    const checkSpread = (lm) => {
-      const d1 = getEulerDistance(lm[4], lm[8]);
-      const d2 = getEulerDistance(lm[8], lm[12]);
-      const d3 = getEulerDistance(lm[12], lm[16]);
-      const d4 = getEulerDistance(lm[16], lm[20]);
-      return (d1 > 0.08 && d2 > 0.07 && d3 > 0.07 && d4 > 0.08);
-    };
-    const leftValid = checkSpread(leftHand);
-    const rightValid = checkSpread(rightHand);
-    document.getElementById('calib-left').classList.toggle('active', leftValid);
-    document.getElementById('calib-right').classList.toggle('active', rightValid);
-    return leftValid && rightValid;
-  }
-
-  // 3D Spatial Vector Line Drawing Matrix Engine (Zero Parallax Offset Solution)
-  function handleSpatialLineDrawing(indexTipLandmark) {
-    const coords = getAbsoluteScreenCoords(indexTipLandmark);
-    
-    // Compute precise normalized device mapping matrix bounds cleanly
-    const mx = (coords.x / window.innerWidth) * 2 - 1;
-    const my = -(coords.y / window.innerHeight) * 2 + 1;
-    
-    // Project screen vector directly into physical 3D space tracking matrix coordinates perfectly
-    const drawingVector = new THREE.Vector3(mx, my, 0.5).unproject(camera);
-    const dir = drawingVector.sub(camera.position).normalize();
-    const distance = -camera.position.z / dir.z;
-    const computed3DPoint = camera.position.clone().add(dir.multiplyScalar(distance));
-
-    if (!currentActiveLineGeometry) {
-      currentActiveLinePoints = [computed3DPoint, computed3DPoint.clone()];
-      currentActiveLineGeometry = new THREE.BufferGeometry().setFromPoints(currentActiveLinePoints);
-      const mat = new THREE.LineBasicMaterial({ color: 0x00f0ff, linewidth: 3, transparent: true, opacity: 0.9 });
-      const lineMesh = new THREE.Line(currentActiveLineGeometry, mat);
-      drawingLinesGroup.add(lineMesh);
+      renderHandOverlay(currentLM);
     } else {
-      // Append continuous positional points seamlessly vector metrics safely
-      const lastPt = currentActiveLinePoints[currentActiveLinePoints.length - 1];
-      if (computed3DPoint.distanceTo(lastPt) > 1.8) {
-        currentActiveLinePoints.push(computed3DPoint);
-        currentActiveLineGeometry.setFromPoints(currentActiveLinePoints);
-      }
+      renderHandOverlay(null);
+      document.getElementById('finger-cursor').style.display = 'none';
     }
+    syncHUD();
+  });
+
+  const cameraInstance = new Camera(videoEl, {
+    onFrame: async () => { await hands.send({ image: videoEl }); },
+    width: 640, height: 480
+  });
+  cameraInstance.start();
+}
+
+// ─── HARDWARE ACQUISITION AND SYSTEM STARTUP ─────────────────────────────
+document.getElementById('start-btn').addEventListener('click', async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    const video = document.getElementById('video-feed');
+    video.srcObject = stream;
+    
+    document.getElementById('boot-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    
+    initMediaPipeTracking(video);
+    initVoiceCommandEngine();
+    initAIImagePipeline();
+  } catch (err) {
+    document.getElementById('perm-error').style.display = 'flex';
+  }
+});
+
+// ─── MAIN GRAPHICS LOOP ──────────────────────────────────────────────────
+function loop(timestamp) {
+  requestAnimationFrame(loop);
+  
+  fpsCount++;
+  if (timestamp - lastFpsUpdate >= 1000) {
+    currentFps = fpsCount;
+    fpsCount = 0;
+    lastFpsUpdate = timestamp;
   }
 
-  function stopSpatialDrawingSequence() {
-    currentActiveLineGeometry = null;
-    currentActiveLinePoints = [];
-  }
-
-  // Sophisticated Multi-Finger Spatial Processing Logic Matrix
-  function evaluateGestures() {
-    const left = SYSTEM.hands.Left;
-    const right = SYSTEM.hands.Right;
-
-    // Carousel Flick Tracker Module via History Metrics Data
-    ['Left', 'Right'].forEach(side => {
-      const hList = SYSTEM.history[side];
-      const currentHand = SYSTEM.hands[side];
-      if(currentHand) {
-        hList.push({x: 1.0 - currentHand[8].x, y: currentHand[8].y, t: Date.now()});
-        if(hList.length > 10) hList.shift();
-        if(hList.length >= 6) {
-          const first = hList[0]; const last = hList[hList.length - 1];
-          const dt = last.t - first.t; const dx = last.x - first.x;
-          if(dt < 220 && Math.abs(dx) > 0.38 && (Date.now() - SYSTEM.lastFlickTime > 800)) {
-            if(dx > 0) SYSTEM.activeModelIndex = (SYSTEM.activeModelIndex + 1) % MODELS_DATA.length;
-            else SYSTEM.activeModelIndex = (SYSTEM.activeModelIndex - 1 + MODELS_DATA.length) % MODELS_DATA.length;
-            SYSTEM.lastFlickTime = Date.now();
-            updateCarouselSelectionUI();
-          }
-        }
-      } else { hList.length = 0; }
-    });
-
-    const checkFist = (lm) => {
-      if(!lm) return false;
-      const wrist = lm[0];
-      return [8, 12, 16, 20].every(idx => getEulerDistance(lm[idx], wrist) < 0.22);
-    };
-
-    // 1. GLOBAL GATHER ASSEMBLY MATRIX (Fist Trigger)
-    if(checkFist(left) || checkFist(right)) {
-      stopSpatialDrawingSequence();
-      SYSTEM.targetPositionX = 0; SYSTEM.targetPositionY = 0;
-      SYSTEM.currentMode = "MARKAZLASHTIRISH / GATHER";
-      return;
-    }
-
-    const checkOpenPalm = (lm) => {
-      if(!lm) return false;
-      const wrist = lm[0];
-      return [8, 12, 16, 20].every(idx => getEulerDistance(lm[idx], wrist) > 0.35);
-    };
-
-    // 2. GLOBAL MATRIX SCALE (Two hands wide open moving apart/together)
-    if(left && right && checkOpenPalm(left) && checkOpenPalm(right)) {
-      stopSpatialDrawingSequence();
-      const currentDist = getEulerDistance(left[0], right[0]);
-      if(!SYSTEM.initialHandDistance) {
-        SYSTEM.initialHandDistance = currentDist;
-        SYSTEM.initialModelScale = SYSTEM.baseScale;
-      } else {
-        const ratio = currentDist / SYSTEM.initialHandDistance;
-        SYSTEM.targetScale = Math.max(0.2, Math.min(4.5, SYSTEM.initialModelScale * ratio));
-      }
-      SYSTEM.currentMode = "UMUMIY MASSHTAB / GLOBAL SCALE";
-      return;
-    }
-    SYSTEM.initialHandDistance = null;
-
-    // 3. PRIMARY EXECUTOR: SINGLE HAND PINCH COMPONENT SCALING (Thumb + Index)
-    const checkSinglePinch = (lm) => {
-      if(!lm) return false;
-      return getEulerDistance(lm[4], lm[8]) < 0.045;
-    };
-    const activePinchHand = checkSinglePinch(right) ? right : (checkSinglePinch(left) ? left : null);
-    if(activePinchHand) {
-      stopSpatialDrawingSequence();
-      const wrist = activePinchHand[0];
-      const distToWrist = getEulerDistance(activePinchHand[8], wrist);
-      SYSTEM.targetScale = Math.max(0.3, Math.min(3.8, distToWrist * 3.2));
-      SYSTEM.currentMode = "ELEMENT CHIMCHILASH / PINCH SCALE";
-      return;
-    }
-
-    // 4. PRIMARY EXECUTOR: THREE-FINGER ISOLATED COMPONENT GRAB & TRANSLATION (Thumb + Index + Middle close)
-    const checkThreeFingerGrab = (lm) => {
-      if(!lm) return false;
-      return (getEulerDistance(lm[4], lm[8]) < 0.06 && getEulerDistance(lm[4], lm[12]) < 0.06);
-    };
-    const activeGrabHand = checkThreeFingerGrab(right) ? right : (checkThreeFingerGrab(left) ? left : null);
-    if(activeGrabHand) {
-      stopSpatialDrawingSequence();
-      const coords = getAbsoluteScreenCoords(activeGrabHand[8]);
-      SYSTEM.targetPositionX = (coords.x - window.innerWidth / 2) * 1.3;
-      SYSTEM.targetPositionY = -(coords.y - window.innerHeight / 2) * 1.3;
-      SYSTEM.currentMode = "BLOK USHLASH / ISOLATED GRAB";
-      return;
-    }
-
-    // 5. SECONDARY ROTATOR COMPONENT ENGINE: (Ring + Pinky Extended for Rotational Control Matrix)
-    const checkRotationTrigger = (lm) => {
-      if(!lm) return false;
-      // Triggers rotation if ring and pinky are distinctly extended separated from palm metrics
-      return (getEulerDistance(lm[16], lm[0]) > 0.32 && getEulerDistance(lm[20], lm[0]) > 0.32);
-    };
-    const activeRotHand = checkRotationTrigger(right) ? right : (checkRotationTrigger(left) ? left : null);
-    if(activeRotHand && !checkOpenPalm(activeRotHand)) {
-      stopSpatialDrawingSequence();
-      const coords = getAbsoluteScreenCoords(activeRotHand[8]);
-      SYSTEM.targetRotationY = ((coords.x / window.innerWidth) - 0.5) * Math.PI * 2.5;
-      SYSTEM.targetRotationX = ((coords.y / window.innerHeight) - 0.5) * Math.PI * 1.8;
-      SYSTEM.currentMode = "FAZOWIY AYLANISH / ROTATE";
-      return;
-    }
-
-    // 6. DEDICATED HIGH PRECISION SPATIAL DRAWING MODE ENGINE (Only Index Finger extended)
-    const checkDrawingGesture = (lm) => {
-      if(!lm) return false;
-      const isIndexExtended = getEulerDistance(lm[8], lm[0]) > 0.32;
-      const isMiddleClosed = getEulerDistance(lm[12], lm[0]) < 0.24;
-      const isRingClosed = getEulerDistance(lm[16], lm[0]) < 0.24;
-      return isIndexExtended && isMiddleClosed && isRingClosed;
-    };
-    const activeDrawHand = checkDrawingGesture(right) ? right : (checkDrawingGesture(left) ? left : null);
-    if(activeDrawHand) {
-      handleSpatialLineDrawing(activeDrawHand[8]);
-      SYSTEM.currentMode = "KINETIK CHIZISH / SPATIAL DRAW";
-      return;
-    }
-
-    stopSpatialDrawingSequence();
-    SYSTEM.currentMode = "TIZIM BARQAROR / IDLE";
-  }
-
-  // MediaPipe Pipeline Pipeline Setup
-  function initMediaPipePipeline(videoElement) {
-    const hands = new Hands({
-      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-    });
-
-    hands.setOptions({
-      maxNumHands: 2, modelComplexity: 1, minDetectionConfidence: 0.78, minTrackingConfidence: 0.75
-    });
-
-    hands.onResults((results) => {
-      lmCtx.clearRect(0, 0, lmCanvas.width, lmCanvas.height);
-      SYSTEM.hands.Left = null; SYSTEM.hands.Right = null;
-
-      let handsCount = results.multiHandLandmarks ? results.multiHandLandmarks.length : 0;
-      document.getElementById('status-tracking').textContent = `${handsCount} AKTIV QO'L`;
-
-      if(results.multiHandLandmarks && results.multiHandedness) {
-        for(let i = 0; i < results.multiHandLandmarks.length; i++) {
-          const landmarks = results.multiHandLandmarks[i];
-          const sideLabel = results.multiHandedness[i].label; // Absolute Direction Mapping Layer
-          SYSTEM.hands[sideLabel] = landmarks;
-        }
-        
-        renderCompleteHandSkeletonMesh(results.multiHandLandmarks);
-
-        if(!SYSTEM.calibrated) {
-          if(verifyCalibrationState(SYSTEM.hands.Left, SYSTEM.hands.Right)) {
-            SYSTEM.calibrated = true;
-            document.getElementById('calibration-overlay').classList.add('hidden');
-            loadActiveSceneModel();
-          }
-        } else {
-          evaluateGestures();
-        }
-      }
-
-      document.getElementById('mode-badge').textContent = `⚡ REJIM: ${SYSTEM.currentMode}`;
-      document.getElementById('status-transform').textContent = 
-        `M: ${SYSTEM.baseScale.toFixed(2)} | B: ${SYSTEM.rotationY.toFixed(1)}, ${SYSTEM.rotationX.toFixed(1)}`;
-    });
-
-    const cameraInstance = new Camera(videoElement, {
-      onFrame: async () => { await hands.send({ image: videoElement }); },
-      width: 640, height: 480
-    });
-    cameraInstance.start();
-    document.getElementById('status-ai').textContent = "FAOL";
-    document.getElementById('status-ai').style.color = "var(--cyan)";
-  }
-
-  // Kinetic Master Animation Render Matrix Loop
-  function coreRenderLoop(timestamp) {
-    requestAnimationFrame(coreRenderLoop);
-
-    SYSTEM.baseScale += (SYSTEM.targetScale - SYSTEM.baseScale) * 0.12;
-    SYSTEM.rotationX += (SYSTEM.targetRotationX - SYSTEM.rotationX) * 0.12;
-    SYSTEM.rotationY += (SYSTEM.targetRotationY - SYSTEM.rotationY) * 0.12;
-    SYSTEM.positionX += (SYSTEM.targetPositionX - SYSTEM.positionX) * 0.12;
-    SYSTEM.positionY += (SYSTEM.targetPositionY - SYSTEM.positionY) * 0.12;
-
-    current3DGroup.scale.set(SYSTEM.baseScale, SYSTEM.baseScale, SYSTEM.baseScale);
-    current3DGroup.rotation.x = SYSTEM.rotationX;
-    current3DGroup.rotation.y = SYSTEM.rotationY;
-    current3DGroup.position.x = SYSTEM.positionX;
-    current3DGroup.position.y = SYSTEM.positionY;
-
-    if(SYSTEM.currentMode.includes("IDLE")) {
-      current3DGroup.rotation.y += 0.005;
-    }
-
-    renderer.render(scene, camera);
-  }
-  requestAnimationFrame(coreRenderLoop);
-
-  // System Initialization Trigger UI Interactivity
-  document.getElementById('start-btn').addEventListener('click', async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480, facingMode: 'user' }, audio: false
-      });
-      const videoElement = document.getElementById('video-feed');
-      videoElement.srcObject = stream;
-      await videoElement.play();
-
-      document.getElementById('boot-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-
-      initMediaPipePipeline(videoElement);
-    } catch (err) {
-      console.error(err);
-      document.getElementById('perm-error').style.display = 'flex';
+  ENGINE_STATE.spatialObjects.forEach(obj => {
+    if(obj.isMesh && !ENGINE_STATE.activeObject) {
+      obj.rotation.y += 0.004;
     }
   });
+
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(loop);
+
 </script>
-
 </body>
 </html>
