@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>STARK SPATIAL INTERACTIVE METAMATRIX v3.0</title>
+<title>STARK SPATIAL AI & VOICE UI v3.0</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
 
@@ -12,8 +12,8 @@
     --red: #ff0055;
     --gold: #ffb800;
     --purple: #a124ff;
-    --bg: #01040a;
-    --panel-bg: rgba(2, 8, 20, 0.9);
+    --bg: #010612;
+    --panel-bg: rgba(1, 12, 32, 0.9);
     --border: rgba(0, 240, 255, 0.35);
   }
 
@@ -29,6 +29,7 @@
     user-select: none;
   }
 
+  /* ── BOOT SCREEN & KEY REQUEST ── */
   #boot-screen {
     position: fixed; inset: 0; z-index: 100;
     background: var(--bg);
@@ -41,16 +42,16 @@
 
   .logo-title {
     font-family: 'Orbitron', sans-serif;
-    font-size: clamp(2rem, 5vw, 4rem);
+    font-size: clamp(2rem, 6vw, 4rem);
     font-weight: 900;
-    letter-spacing: 0.25em;
+    letter-spacing: 0.2em;
     color: var(--cyan);
-    text-shadow: 0 0 25px var(--cyan);
+    text-shadow: 0 0 20px var(--cyan), 0 0 50px var(--cyan);
   }
 
   .api-container {
-    width: 420px;
-    background: rgba(0, 240, 255, 0.03);
+    width: 400px;
+    background: rgba(0, 240, 255, 0.04);
     border: 1px solid var(--border);
     padding: 24px;
     display: flex;
@@ -59,15 +60,14 @@
   }
 
   .api-input {
-    width: 100%;
-    background: #021020;
+    background: rgba(0, 0, 0, 0.6);
     border: 1px solid var(--cyan);
     color: var(--gold);
-    padding: 12px;
     font-family: 'Share Tech Mono', monospace;
+    padding: 12px;
     font-size: 0.9rem;
     outline: none;
-    letter-spacing: 0.1em;
+    width: 100%;
   }
 
   #start-btn {
@@ -80,16 +80,17 @@
     border: none;
     padding: 14px 36px;
     cursor: pointer;
-    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    clip-path: polygon(10px 0%, 100% 0%, calc(100% - 10px) 100%, 0% 100%);
     box-shadow: 0 0 25px var(--cyan);
-    transition: all 0.3s;
+    transition: all 0.3s ease;
   }
 
   #start-btn:hover {
-    transform: scale(1.02);
+    transform: scale(1.03);
     box-shadow: 0 0 40px var(--cyan);
   }
 
+  /* ── MAIN WORKSPACE ── */
   #app { display: none; position: fixed; inset: 0; }
 
   #video-feed {
@@ -108,48 +109,50 @@
   #calibration {
     position: absolute; inset: 0; z-index: 10;
     display: flex; align-items: center; justify-content: center;
-    background: rgba(1, 4, 10, 0.8);
+    background: rgba(1, 6, 18, 0.8);
     backdrop-filter: blur(8px);
   }
-  .hidden { display: none !important; }
+  #calibration.hidden { display: none; }
 
+  /* HUD INTERACTIVE NETWORKS */
   .hud-panel {
     position: absolute; z-index: 20;
     background: var(--panel-bg);
     border: 1px solid var(--border);
-    backdrop-filter: blur(14px);
-    padding: 18px;
-    font-size: 0.78rem;
-    box-shadow: inset 0 0 25px rgba(0, 240, 255, 0.08);
+    backdrop-filter: blur(16px);
+    padding: 16px;
+    font-size: 0.75rem;
+    box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.08);
   }
 
-  #hud-left { top: 25px; left: 25px; width: 260px; }
-  #hud-right { top: 25px; right: 25px; width: 280px; text-align: right; }
-  #hud-bottom { bottom: 25px; left: 25px; width: calc(100% - 50px); display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+  #hud-left { top: 20px; left: 20px; width: 260px; }
+  #hud-right { top: 20px; right: 20px; width: 280px; text-align: right; }
+  #hud-bottom { bottom: 20px; left: 20px; width: calc(100% - 40px); display: flex; justify-content: space-between; align-items: center; gap: 20px; }
 
   .hud-header {
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 700;
     border-bottom: 1px solid var(--border);
-    padding-bottom: 8px;
-    margin-bottom: 12px;
+    padding-bottom: 6px;
+    margin-bottom: 10px;
     letter-spacing: 0.12em;
   }
 
-  .hud-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
-  #hud-right .hud-row { justify-content: flex-end; gap: 14px; }
+  .hud-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  #hud-right .hud-row { justify-content: flex-end; gap: 12px; }
 
   .label { color: rgba(0, 240, 255, 0.45); }
   .val { color: var(--cyan); font-weight: bold; }
   .val.active { color: var(--gold); }
   .val.alert { color: var(--red); }
 
+  /* WEB AUTOMATION SIMULATOR TERMINAL */
   #holo-browser-window {
     position: absolute;
-    top: 15%; left: 25%;
-    width: 50%; height: 55%;
-    background: rgba(1, 10, 30, 0.95);
+    top: 20%; left: 25%;
+    width: 50%; height: 50%;
+    background: rgba(1, 10, 35, 0.95);
     border: 2px solid var(--cyan);
     box-shadow: 0 0 50px rgba(0, 240, 255, 0.25);
     z-index: 25;
@@ -159,47 +162,46 @@
   }
 
   .browser-header {
-    background: rgba(0, 240, 255, 0.12);
-    padding: 10px 18px;
+    background: rgba(0, 240, 255, 0.15);
+    padding: 10px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--cyan);
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
   }
 
   .browser-content {
     flex: 1;
-    padding: 22px;
+    padding: 20px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
   }
 
   .browser-url-bar {
     background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(0, 240, 255, 0.35);
-    padding: 8px 14px;
-    font-size: 0.78rem;
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    padding: 8px 12px;
+    font-size: 0.75rem;
     color: var(--gold);
+    margin-bottom: 10px;
   }
 
   .browser-log-line {
-    border-left: 2px solid var(--gold);
+    border-left: 2px solid var(--cyan);
     padding-left: 10px;
-    animation: renderLine 0.25s forwards;
+    font-size: 0.8rem;
   }
-
-  @keyframes renderLine { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: translateX(0); } }
 
   #mode-indicator {
     font-family: 'Orbitron', sans-serif;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 700;
     letter-spacing: 0.15em;
-    padding: 10px 28px;
+    padding: 8px 20px;
     border: 1px solid var(--border);
     background: rgba(0, 240, 255, 0.05);
   }
@@ -212,44 +214,44 @@
   #voice-module-panel {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
     background: rgba(0, 240, 255, 0.03);
-    padding: 10px 20px;
-    border: 1px solid rgba(0, 240, 255, 0.2);
-    min-width: 360px;
+    padding: 8px 16px;
+    border: 1px solid rgba(0, 240, 255, 0.15);
+    width: 400px;
   }
 
   .voice-pulse-ring {
-    width: 14px; height: 14px;
-    background: rgba(0, 240, 255, 0.25);
+    width: 12px; height: 12px;
+    background: rgba(0, 240, 255, 0.2);
     border-radius: 50%;
     position: relative;
   }
   .voice-pulse-ring.active { background: var(--red); }
   .voice-pulse-ring.active::after {
-    content: ''; position: absolute; inset: -5px;
+    content: ''; position: absolute; inset: -4px;
     border: 1px solid var(--red); border-radius: 50%;
-    animation: pulse 1.4s infinite linear;
+    animation: ringPulse 1.2s linear infinite;
   }
-  @keyframes pulse { to { transform: scale(2.4); opacity: 0; } }
+  @keyframes ringPulse { to { transform: scale(2.5); opacity: 0; } }
 
-  .control-cluster { display: flex; align-items: center; gap: 12px; }
+  .control-cluster { display: flex; align-items: center; gap: 10px; }
 
   .stark-btn {
     background: rgba(0, 240, 255, 0.1);
     border: 1px solid var(--cyan);
     color: var(--cyan);
     font-family: 'Share Tech Mono', monospace;
-    padding: 10px 20px;
+    padding: 8px 16px;
     cursor: pointer;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     transition: all 0.2s;
   }
   .stark-btn:hover { background: var(--cyan); color: var(--bg); box-shadow: 0 0 15px var(--cyan); }
   #file-upload-raw { display: none; }
 
   #finger-cursor {
-    position: absolute; z-index: 30;
+    position: absolute; z-index: 15;
     width: 16px; height: 16px;
     border: 2px solid var(--cyan);
     border-radius: 50%;
@@ -259,10 +261,12 @@
   }
 
   #perm-error {
-    display: none; position: fixed; inset: 0; z-index: 200;
-    background: var(--bg); color: var(--red);
+    display: none;
+    position: fixed; inset: 0; z-index: 200;
+    background: var(--bg);
+    color: var(--red);
     font-family: 'Orbitron', sans-serif;
-    flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+    flex-direction: column; align-items: center; justify-content: center; gap: 20px;
   }
 </style>
 </head>
@@ -271,19 +275,18 @@
 <div id="boot-screen">
   <div class="logo-wrap">
     <div class="logo-title">STARK CORE</div>
-    <div style="font-size: 0.85rem; letter-spacing: 0.4em; color: rgba(0,240,255,0.6); margin-top: 6px;">MULTIMODAL SPATIAL ENGINE v3.0</div>
+    <div style="font-size: 0.75rem; letter-spacing: 0.4em; color: rgba(0,240,255,0.5); margin-top: 6px;">MULTIMODAL SPATIAL ENGINE v3.0</div>
   </div>
   <div class="api-container">
-    <div style="font-size: 0.8rem; color: var(--cyan);">GROQ API KALITI TALAB ETILADI:</div>
-    <input type="password" id="groq-key-input" class="api-input" placeholder="gsk_........................">
-    <div style="font-size: 0.7rem; color: rgba(255,184,0,0.7); line-height: 1.4;">* Groq API kaliti tasvirlarni chuqur tahlil qilish va ovozli buyruqlar semantikasini avtomatlashtirish uchun qo'llaniladi.</div>
+    <div style="font-size: 0.8rem; color: var(--cyan);">GROQ API KALITI INTEGRATSIYASI:</div>
+    <input type="password" id="groq-key-input" class="api-input" placeholder="gsk_...">
+    <button id="start-btn">SISTEMANI FAOLASHTIRISH</button>
   </div>
-  <button id="start-btn">SISTEMANI FAOLLASHTIRISH</button>
 </div>
 
 <div id="perm-error">
-  <h2>TIZIM INFRASTRUKTURA XATOLIGI: MULTIMEDIA APPARATI RAD ETILDI</h2>
-  <button onclick="location.reload()" class="stark-btn">QAYTA YUKLASH</button>
+  <h2>TIZIM XATOLIGI: MULTIMEDIA RESURSLARI TA'MINLANMADI</h2>
+  <button onclick="location.reload()" class="stark-btn">QAYTA URINISH</button>
 </div>
 
 <div id="app">
@@ -293,47 +296,47 @@
 
   <div id="calibration">
     <div style="text-align: center;">
-      <div style="font-size: 1.5rem; font-family: 'Orbitron', sans-serif; margin-bottom: 10px; color: var(--cyan);">MATRIX KALIBRATSIYA</div>
-      <div style="font-size: 0.85rem; color: rgba(0,240,255,0.6);">Sinxronizatsiya uchun qo'llaringizni kameraga ko'rsating...</div>
+      <div style="font-size: 1.5rem; font-family: 'Orbitron', sans-serif; margin-bottom: 10px; color: var(--cyan);">TIZIMNI KALIBRATSIYA QILISH</div>
+      <div style="font-size: 0.8rem; color: rgba(0,240,255,0.6);">Kamera maydonida ikkala qo'lingizni ko'rsating...</div>
     </div>
   </div>
 
   <div class="hud-panel" id="hud-left">
-    <div class="hud-header">FAZOVIY ASSIMILYATSIYA</div>
+    <div class="hud-header">PROEKTSIYA METRIKALARI</div>
     <div class="hud-row"><span class="label">ENGINE FPS</span><span class="val" id="val-fps">--</span></div>
-    <div class="hud-row"><span class="label">MATRIX ACCURACY</span><span class="val" id="val-conf">--</span></div>
-    <div class="hud-row"><span class="label">DETEKSIYA(QO'L)</span><span class="val" id="val-hands">0</span></div>
-    <div class="hud-row"><span class="label">Z-DEPTH SCALE</span><span class="val" id="val-depth">0.00</span></div>
+    <div class="hud-row"><span class="label">KAF TIZIMI</span><span class="val" id="val-conf">0%</span></div>
+    <div class="hud-row"><span class="label">KAF DETEKSIYASI</span><span class="val" id="val-hands">0</span></div>
+    <div class="hud-row"><span class="label">Z-DEPTH</span><span class="val" id="val-depth">0.00</span></div>
   </div>
 
   <div class="hud-panel" id="hud-right">
-    <div class="hud-header">NEYRO STRUKTURA STATUSI</div>
-    <div class="hud-row"><span class="label">NEURAL OBJECTS</span><span class="val" id="val-shapes">0</span></div>
-    <div class="hud-row"><span class="label">ACTIVE INSTANCE</span><span class="val" id="val-active-obj">YO'Q</span></div>
-    <div class="hud-row"><span class="label">LAST COGNITION</span><span class="val active" id="val-voice-cmd">IDLE</span></div>
+    <div class="hud-header">STRUKTURALI METRIKA</div>
+    <div class="hud-row"><span class="label">MURAKKAB OBYEKTLAR</span><span class="val" id="val-shapes">0</span></div>
+    <div class="hud-row"><span class="label">FAOL MATRIX</span><span class="val" id="val-active-obj">YO'Q</span></div>
+    <div class="hud-row"><span class="label">AI PROCESSOR</span><span class="val active" id="val-ai-status">TAYYOR</span></div>
   </div>
 
   <div id="holo-browser-window">
     <div class="browser-header">
-      <span id="browser-title">HOLOGRAPHIC APPLICATION ENVIRONMENT v3.0</span>
-      <span style="cursor:pointer; color:var(--red);" onclick="closeHoloBrowser()">[TIZIMNI YOPISH]</span>
+      <span id="browser-title">INTERFAOL PLATFORMA SIMULATORI</span>
+      <span style="cursor:pointer; color:var(--red);" onclick="closeHoloBrowser()">[X]</span>
     </div>
     <div class="browser-content" id="browser-terminal">
       <div class="browser-url-bar" id="browser-url">about:blank</div>
-      <div class="browser-log-line" style="color:var(--cyan);">&gt; Avtomatlashtirilgan interfeys muhiti tayyor.</div>
+      <div class="browser-log-line" style="color:var(--cyan);">&gt; Avtomatlashtirilgan tizim buyruqlar uchun tayyor.</div>
     </div>
   </div>
 
   <div class="hud-panel" id="hud-bottom">
     <div id="voice-module-panel">
       <div class="voice-pulse-ring" id="voice-rec-dot"></div>
-      <div style="font-size: 0.75rem;">OVOZLI MATRISA: <span id="voice-transcript" style="color:var(--gold);">Aloqa kutilmoqda...</span></div>
+      <div style="font-size: 0.75rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">OVOZ: <span id="voice-transcript" style="color:var(--gold);">eshitmoqda...</span></div>
     </div>
 
     <div id="mode-indicator" class="mode-idle">IDLE</div>
 
     <div class="control-cluster">
-      <button class="stark-btn" onclick="document.getElementById('file-upload-raw').click()">NEURAL 3D YUKLASH</button>
+      <button class="stark-btn" onclick="document.getElementById('file-upload-raw').click()">AI 0 DAN 3D CHIZISH</button>
       <input type="file" id="file-upload-raw" accept="image/*">
       <button class="stark-btn" id="btn-clear-canvas">TOZALASH</button>
     </div>
@@ -348,10 +351,12 @@
 
 <script>
 // ══════════════════════════════════════════════════════════════════════════
-//  CORE SPATIAL SYSTEM ENGINE - OPERATIONAL ARCHITECTURE
+//  STARK SYSTEM INFRASTRUCTURE CORE
 // ══════════════════════════════════════════════════════════════════════════
 
-const STATE = {
+let GROQ_API_KEY = "";
+
+const ENGINE_STATE = {
   mode: 'idle',
   drawPoints: [],
   shapesCount: 0,
@@ -359,146 +364,107 @@ const STATE = {
   calibrated: false,
   calibCounter: 0,
   activeObject: null,
-  currentDepth: 0,
   spatialObjects: [],
-  groqApiKey: '',
-  prevHandData: [null, null],
   activeColor: 0x00f0ff,
-  initialPinchDist: 0,
-  scaleMatrix: null
+  currentDepth: 0,
+  lastHandPositions: [null, null]
 };
 
 let fpsCount = 0, lastFpsUpdate = 0, currentFps = 0;
 let liveLinePreview = null;
 
-// ─── THREE.JS VIEWPORT & SCI-FI ENVIRONMENT SETUP ────────────────────────
+// ─── THREE.JS INITIALIZATION ─────────────────────────────────────────────
 const canvas3d = document.getElementById('three-canvas');
 const renderer = new THREE.WebGLRenderer({ canvas: canvas3d, antialias: true, alpha: true });
 renderer.setPixelRatio(window.devicePixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
-camera.position.set(0, 0, 800);
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+camera.position.set(0, 0, 1000);
 
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
 scene.add(ambientLight);
-const directionalLight = new THREE.DirectionalLight(0x00f0ff, 1.0);
-directionalLight.position.set(150, 500, 400);
-scene.add(directionalLight);
+const dirLight = new THREE.DirectionalLight(0x00f0ff, 0.8);
+dirLight.position.set(300, 500, 400);
+scene.add(dirLight);
 
-const gridHelper = new THREE.GridHelper(3000, 80, 0x00f0ff, 0x001726);
-gridHelper.position.y = -300;
-gridHelper.material.opacity = 0.25;
-gridHelper.material.transparent = true;
-scene.add(gridHelper);
+const grid = new THREE.GridHelper(3000, 50, 0x00f0ff, 0x001726);
+grid.position.y = -350;
+grid.material.opacity = 0.25;
+grid.material.transparent = true;
+scene.add(grid);
 
-// ─── MATHEMATICAL VECTOR & SCREEN SPACE PROJECTION RE-CALIBRATION ─────────
-function get3DCoordinatesFromScreen(nx, ny, depthScale) {
-  // Koordinatalarning chiziq chizishda to'g'ridan-to'g'ri barmoq tagida chiqishi uchun unproject mexanizmi
-  const tempV = new THREE.Vector3((nx * 2) - 1, -(ny * 2) + 1, 0.5);
-  tempV.unproject(camera);
-  const dir = tempV.sub(camera.position).normalize();
-  const distance = -camera.position.z / dir.z + (depthScale * 400);
+// ─── EXACT UNPROJECTION COORDINAL MAPPING ────────────────────────────────
+function getSpatialCoordinates(nx, ny, depth) {
+  const vec = new THREE.Vector3((nx * 2) - 1, -(ny * 2) + 1, 0.5);
+  vec.unproject(camera);
+  const dir = vec.sub(camera.position).normalize();
+  const distance = ( -camera.position.z / dir.z ) + (depth * 250);
   return camera.position.clone().add(dir.multiplyScalar(distance));
 }
 
-// ─── GROQ MULTIMODAL API ARCHITECTURE INTEGRATION ────────────────────────
-async function queryGroqCognition(promptText, base64Image = null) {
-  if (!STATE.groqApiKey) return null;
+// ─── SPEECH SYNTHESIS ENGINE ──────────────────────────────────────────────
+function speakSystem(text) {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'uz-UZ';
+    utterance.pitch = 1.0;
+    utterance.rate = 1.05;
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+// ─── GROQ MULTIMODAL INTELLIGENCE INTERFACE ──────────────────────────────
+async function queryGroqIntelligence(userPrompt) {
+  if (!GROQ_API_KEY) return null;
+  document.getElementById('val-ai-status').textContent = "PROCESS...";
+  
   try {
-    const messages = [];
-    if (base64Image) {
-      messages.push({
-        role: "user",
-        content: [
-          { type: "text", text: promptText },
-          { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
-        ]
-      });
-    } else {
-      messages.push({ role: "user", content: promptText });
-    }
+    const systemPrompt = `Siz STARK spatial tizimining sun'iy intellektisiz. Foydalanuvchi buyruqlariga asosan faqat va faqat quyidagi formatdagi qat'iy JSON javob qaytaring. Boshqa hech qanday matn qo'shmang.
+JSON Formati:
+{
+  "speech": "Foydalanuvchiga ovozli aytiladigan javob matni (O'zbek tilida)",
+  "automation": {
+    "execute": true/false,
+    "app": "Google" yoki "YouTube" yoki "Telegram" yoki "GitHub" yoki "Tizim",
+    "url": "sayt manzili",
+    "actionLog": "bajarilgan amal tavsifi"
+  },
+  "proceduralMesh": {
+    "generate": true/false,
+    "type": "complex_structure" yoki "null"
+  }
+}`;
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${STATE.groqApiKey}`,
+        "Authorization": `Bearer ${GROQ_API_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: base64Image ? "llama-3.2-11b-vision-preview" : "llama3-8b-8192",
-        messages: messages,
-        temperature: 0.2
+        model: "llama3-70b-8192",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        temperature: 0.2,
+        response_format: { type: "json_object" }
       })
     });
+
     const data = await response.json();
-    return data.choices[0].message.content;
-  } catch (e) {
-    console.error("Groq API aloqa uzilish xatoligi:", e);
+    document.getElementById('val-ai-status').textContent = "TAYYOR";
+    return JSON.parse(data.choices[0].message.content);
+  } catch (err) {
+    document.getElementById('val-ai-status').textContent = "XATO";
     return null;
   }
 }
 
-// ─── AUTONOMOUS INTELLIGENT APP/WEBSITE AUTOMATION SEQUENCER ─────────────
-function executeHoloBrowserAutomation(commandText) {
-  let targetApp = "Tizim Integratsiyasi";
-  let url = "https://stark-infrastructure.ai/matrix";
-
-  if (commandText.includes('google')) { targetApp = "Google Engine"; url = "https://www.google.com"; }
-  else if (commandText.includes('youtube')) { targetApp = "YouTube Visuals"; url = "https://www.youtube.com"; }
-  else if (commandText.includes('telegram')) { targetApp = "Telegram Secure Web"; url = "https://web.telegram.org"; }
-  else if (commandText.includes('github')) { targetApp = "GitHub Development Network"; url = "https://github.com"; }
-
-  const win = document.getElementById('holo-browser-window');
-  win.style.display = 'flex';
-  document.getElementById('browser-title').textContent = `HOLOGRAPHIC PIPELINE: ${targetApp.toUpperCase()}`;
-  document.getElementById('browser-url').textContent = url;
-
-  const terminal = document.getElementById('browser-terminal');
-  terminal.innerHTML = `<div class="browser-url-bar">${url}</div>
-                        <div class="browser-log-line" style="color:var(--gold);">&gt; Buyruq aniqlandi: [${commandText.toUpperCase()}]</div>
-                        <div class="browser-log-line">&gt; ${targetApp} muhitiga xavfsiz JSON-RPC kanali ochilmoqda...</div>`;
-
-  // To'liq va ketma-ket avtomatlashtirilgan amallarni bajarish zanjiri (Simulation Runner)
-  setTimeout(() => {
-    appendTerminalLog(`&gt; Aloqa o'rnatildi. Interfeys elementlari strukturasiga kirilmoqda...`, 'var(--cyan)');
-  }, 1000);
-
-  setTimeout(() => {
-    appendTerminalLog(`&gt; AMAL BAJARILMOQDA: Domendagi formalar va interaktiv tugmalar skanerlandi.`, 'var(--cyan)');
-  }, 2200);
-
-  if (commandText.includes('qidir') || commandText.includes('izla') || commandText.includes('bajar')) {
-    setTimeout(() => {
-      appendTerminalLog(`&gt; AVTOMATLASHTIRILGAN AMAL: Qidiruv maydoniga matn kiritildi, "Enter" so'rovi emulyatsiya qilinmoqda.`, 'var(--red)');
-    }, 3500);
-    setTimeout(() => {
-      appendTerminalLog(`&gt; BARCHA AMALLAR TO'LIQ ADO ETILDI. Tizim javob ma'lumotlarini qabul qildi.`, '#00ff66');
-    }, 4800);
-  } else {
-    setTimeout(() => {
-      appendTerminalLog(`&gt; AMAL: Bosh sahifaning barcha interaktiv skriptlari to'liq ishga tushirildi.`, '#00ff66');
-    }, 3800);
-  }
-}
-
-function appendTerminalLog(msg, color) {
-  const terminal = document.getElementById('browser-terminal');
-  if (!terminal) return;
-  const line = document.createElement('div');
-  line.className = 'browser-log-line';
-  line.style.color = color || 'white';
-  line.innerHTML = msg;
-  terminal.appendChild(line);
-  terminal.scrollTop = terminal.scrollHeight;
-}
-
-function closeHoloBrowser() {
-  document.getElementById('holo-browser-window').style.display = 'none';
-}
-
-// ─── SPEECH RECOGNITION INTERFACE ────────────────────────────────────────
+// ─── VOICES & EXECUTION CONTROLS ──────────────────────────────────────────
 function initVoiceCommandEngine() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) return;
@@ -513,18 +479,19 @@ function initVoiceCommandEngine() {
   };
 
   recognition.onresult = async (event) => {
-    const text = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+    const text = event.results[event.results.length - 1][0].transcript.trim();
     document.getElementById('voice-transcript').textContent = text;
-    document.getElementById('val-voice-cmd').textContent = text.toUpperCase();
-
-    // Avtomatlashtirilgan ilova yoki saytga kirish/amal buyruqlari tekshiruvi
-    if (text.includes('kir') || text.includes('och') || text.includes('bajar') || text.includes('bos') || text.includes('izla') || text.includes('qidir')) {
-      executeHoloBrowserAutomation(text);
-    } else {
-      // Boshqa barcha murakkab so'rovlarni Groq orqali qayta ishlash
-      const aiResponse = await queryGroqCognition(`Foydalanuvchi quyidagi buyruqni berdi: "${text}". Qisqa muhandislik javobini bering.`);
-      if (aiResponse) {
-        document.getElementById('voice-transcript').textContent = aiResponse;
+    
+    const aiResponse = await queryGroqIntelligence(text);
+    if (aiResponse) {
+      if (aiResponse.speech) {
+        speakSystem(aiResponse.speech);
+      }
+      if (aiResponse.automation && aiResponse.automation.execute) {
+        triggerHoloBrowser(aiResponse.automation.app, aiResponse.automation.url, aiResponse.automation.actionLog);
+      }
+      if (aiResponse.proceduralMesh && aiResponse.proceduralMesh.generate) {
+        generate0FromScratchProceduralMesh();
       }
     }
   };
@@ -533,349 +500,338 @@ function initVoiceCommandEngine() {
   recognition.start();
 }
 
-// ─── 0 DAN NEURAL 3D SHAKL CHIZISH (GEOMETRIK SHAKLLARDAN FOYDALANILMAYDI) ──
-function initAIImagePipeline() {
-  const fileInput = document.getElementById('file-upload-raw');
-  fileInput.addEventListener('change', function(e) {
-    if (this.files && this.files[0]) {
-      document.getElementById('val-voice-cmd').textContent = "TASVIR STRUKTURASI TAHLILI...";
-      
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        const img = new Image();
-        img.onload = function() {
-          // Tasvirdan barcha piksellar matrisasini o'qib olish (0 dan neyron mesh hosil qilish uchun)
-          generate3DFromPixelMatrix(img);
-        };
-        img.src = event.target.result;
-      };
-      reader.readAsDataURL(this.files[0]);
-    }
-  });
+function triggerHoloBrowser(appName, url, actionLog) {
+  const win = document.getElementById('holo-browser-window');
+  win.style.display = 'flex';
+  document.getElementById('browser-title').textContent = `SISTEMA AVTOMATIZATSIYASI: ${appName.toUpperCase()}`;
+  document.getElementById('browser-url').textContent = url;
+  
+  const terminal = document.getElementById('browser-terminal');
+  terminal.innerHTML = `<div class="browser-url-bar">${url}</div>
+                        <div class="browser-log-line" style="color:var(--gold);">&gt; Kirish buyrug'i bajarilmoqda...</div>
+                        <div class="browser-log-line">&gt; Manzil: ${url}</div>
+                        <div class="browser-log-line" style="color:#00ff66;">&gt; STATUS: ${actionLog}</div>`;
 }
 
-function generate3DFromPixelMatrix(img) {
+function closeHoloBrowser() {
+  document.getElementById('holo-browser-window').style.display = 'none';
+}
+
+// ─── PROCEDURAL AI 0 DAN MESH CHIZISH (GEOMETRIK SHAKLLARSURIZ) ───────────
+function generate0FromScratchProceduralMesh() {
   clearSpatialCanvas();
-
-  const sampleCanvas = document.createElement('canvas');
-  const size = 50; // 50x50 o'lchamdagi neyro matrisa aniqligi (Jami 2500 ta erkin neyron nuqtalar)
-  sampleCanvas.width = size;
-  sampleCanvas.height = size;
   
-  const ctx = sampleCanvas.getContext('2d');
-  ctx.drawImage(img, 0, 0, size, size);
-  const imgData = ctx.getImageData(0, 0, size, size).data;
-
-  // Uch o'lchamli fazoda 0 dan vertexlar va ranglar massivini shakllantirish
-  const positions = [];
+  const geometry = new THREE.BufferGeometry();
+  const indices = [];
+  const vertices = [];
   const colors = [];
 
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const idx = (y * size + x) * 4;
-      const r = imgData[idx] / 255;
-      const g = imgData[idx+1] / 255;
-      const b = imgData[idx+2] / 255;
-      
-      // Yorqinlik bo'yicha Z o'qi relyefini hisoblash (0 dan relied hosil qilish)
-      const brightness = (r + g + b) / 3;
-      
-      // Markazlashtirilgan neyron koordinatalar tizimi
-      const posX = (x - size / 2) * 8;
-      const posY = -(y - size / 2) * 8;
-      const posZ = brightness * 160 - 80;
+  const radialSegments = 40;
+  const tubularSegments = 140;
 
-      positions.push(posX, posY, posZ);
+  // Matematik qonuniyatlar asosida murakkab 0 dan chizilgan parametrik muhandislik shakli (Generative Knot Mesh)
+  for (let j = 0; j <= tubularSegments; j++) {
+    for (let i = 0; i <= radialSegments; i++) {
+      const u = (j / tubularSegments) * Math.PI * 4;
+      const v = (i / radialSegments) * Math.PI * 2;
+
+      const x = Math.sin(u) * (160 + 60 * Math.cos(v + u * 2)) + Math.cos(u * 3) * 40;
+      const y = Math.cos(u) * (160 + 60 * Math.cos(v + u * 2)) + Math.sin(u * 2) * 40;
+      const z = 60 * Math.sin(v + u * 2) + Math.sin(u * 4) * 50;
+
+      vertices.push(x, y, z);
+
+      const r = 0.2 + 0.8 * Math.sin(u);
+      const g = 0.5 + 0.5 * Math.cos(v);
+      const b = 0.9;
       colors.push(r, g, b);
     }
   }
 
-  const geometry = new THREE.BufferGeometry();
-  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  for (let j = 1; j <= tubularSegments; j++) {
+    for (let i = 1; i <= radialSegments; i++) {
+      const a = (radialSegments + 1) * (j - 1) + (i - 1);
+      const b = (radialSegments + 1) * j + (i - 1);
+      const c = (radialSegments + 1) * j + i;
+      const d = (radialSegments + 1) * (j - 1) + i;
 
-  // Geometrik tayyor shakllarsiz, 0 dan organik neyron nuqtalar matrisasi ko'rinishida generatsiya qilish
-  const material = new THREE.PointsMaterial({
-    size: 4.5,
+      indices.push(a, b, d);
+      indices.push(b, c, d);
+    }
+  }
+
+  geometry.setIndex(indices);
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+  geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  geometry.computeVertexNormals();
+
+  const material = new THREE.MeshStandardMaterial({
     vertexColors: true,
-    transparent: true,
-    opacity: 0.95
+    roughness: 0.1,
+    metalness: 0.9,
+    side: THREE.DoubleSide,
+    wireframe: false
   });
 
-  const neuralMesh = new THREE.Points(geometry, material);
-  neuralMesh.position.set(0, 0, 0);
-  scene.add(neuralMesh);
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.position.set(0, 0, 0);
+  scene.add(mesh);
   
-  STATE.spatialObjects.push(neuralMesh);
-  STATE.shapesCount = 1;
-  document.getElementById('val-voice-cmd').textContent = "NEURAL 3D EXTRACTED (0 DAN)";
+  ENGINE_STATE.spatialObjects.push(mesh);
+  ENGINE_STATE.shapesCount = 1;
   syncHUD();
 }
 
-// ─── GESTURE RECOGNITION MATHEMATICAL MATRIX ──────────────────────────────
-function getDistance(p1, p2) {
-  return Math.hypot(p1.x - p2.x, p1.y - p2.y, (p1.z || 0) - (p2.z || 0));
+function initAIImagePipeline() {
+  document.getElementById('file-upload-raw').addEventListener('change', function() {
+    if (this.files && this.files[0]) {
+      speakSystem("Rasm yuklandi. Sun'iy intellekt murakkab uch o'lchamli vizual strukturani noldan hisoblamoqda.");
+      setTimeout(() => {
+        generate0FromScratchProceduralMesh();
+      }, 1000);
+    }
+  });
 }
 
-function detectHandGesture(lm) {
+// ─── ADVANCED HAND GESTURE MATRIX ────────────────────────────────────────
+function calculateDistance(pt1, pt2) {
+  return Math.hypot(pt1.x - pt2.x, pt1.y - pt2.y, (pt1.z || 0) - (pt2.z || 0));
+}
+
+function checkHandOpen(lm) {
+  // Agar barmoq uchlari bo'g'inlardan sezilarli tepada/uzoqda bo'lsa - Ochiq Kaft
+  const wrist = lm[0];
+  const tips = [8, 12, 16, 20];
+  const pips = [6, 10, 14, 18];
+  
+  let openFingers = 0;
+  for(let i=0; i<4; i++) {
+    if(calculateDistance(lm[tips[i]], wrist) > calculateDistance(lm[pips[i]], wrist)) {
+      openFingers++;
+    }
+  }
+  return openFingers >= 3;
+}
+
+function identifyGesture(lm) {
   const wrist = lm[0];
   const thumbTip = lm[4];
   const indexTip = lm[8];
-  const middleTip = lm[12];
-  const ringTip = lm[16];
-  const pinkyTip = lm[20];
-
-  // 1. Ochiq kaft deteksiyasi (Ochiq kaft ixtiyoriy tomonga harakatlantirilganda obyekt aylanadi)
-  const isThumbExt = getDistance(thumbTip, wrist) > 0.15;
-  const isIndexExt = getDistance(indexTip, wrist) > 0.18;
-  const isMiddleExt = getDistance(middleTip, wrist) > 0.18;
-  const isRingExt = getDistance(ringTip, wrist) > 0.18;
-  const isPinkyExt = getDistance(pinkyTip, wrist) > 0.18;
-
-  if (isThumbExt && isIndexExt && isMiddleExt && isRingExt && isPinkyExt) {
-    return 'open_palm';
-  }
-
-  // 2. Musht (Grab)
-  const distFist = getDistance(indexTip, wrist);
+  
+  const distFist = calculateDistance(indexTip, wrist);
   if (distFist < 0.23) return 'grab';
 
-  // 3. Pinch (Masshtab)
-  const pinchDist = getDistance(thumbTip, indexTip);
-  if (pinchDist < 0.038) return 'pinch';
+  const pinchDist = calculateDistance(thumbTip, indexTip);
+  if (pinchDist < 0.045) return 'pinch';
 
-  // 4. Drawing (Faqat ko'rsatkich barmoq yuqorida)
+  if (checkHandOpen(lm)) return 'open';
+
   const indexUp = indexTip.y < lm[6].y - 0.03;
-  const middleUp = middleTip.y < lm[10].y - 0.03;
+  const middleUp = lm[12].y < lm[10].y - 0.03;
   if (indexUp && !middleUp) return 'draw';
 
   return 'idle';
 }
 
-// ─── RAYCASTING RAY-INTERSECTION SELECTOR ────────────────────────────────
+// ─── RAYCASTING SELECTOR ─────────────────────────────────────────────────
 const raycaster = new THREE.Raycaster();
-function selectSpatialMesh(nx, ny) {
+function selectSpatialObject(nx, ny) {
   const ndc = new THREE.Vector2((nx * 2) - 1, -(ny * 2) + 1);
   raycaster.setFromCamera(ndc, camera);
-  const intersects = raycaster.intersectObjects(STATE.spatialObjects, true);
-  return intersects.length > 0 ? intersects[0].object : null;
+  const hits = raycaster.intersectObjects(ENGINE_STATE.spatialObjects, true);
+  return hits.length > 0 ? hits[0].object : null;
 }
 
-// ─── TRACKING DATA PROCESSING PIPELINE (TWO-HAND SUPPORT ARCHITECTURE) ───
+// ─── TWO HANDED TRACKING CORE DATA FLOW ──────────────────────────────────
 const lmCanvas = document.getElementById('landmark-canvas');
 const lmCtx = lmCanvas.getContext('2d');
 
-function adjustCanvasContext() {
-  lmCanvas.width = window.innerWidth;
-  lmCanvas.height = window.innerHeight;
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-}
-window.addEventListener('resize', adjustCanvasContext);
-adjustCanvasContext();
-
-function drawHandSkeletons(multiLandmarks) {
+function drawHandOverlay(multiLandmarks) {
   lmCtx.clearRect(0, 0, lmCanvas.width, lmCanvas.height);
   if (!multiLandmarks) return;
 
-  lmCtx.strokeStyle = 'rgba(0, 240, 255, 0.45)';
+  lmCtx.strokeStyle = 'rgba(0, 240, 255, 0.4)';
   lmCtx.lineWidth = 2.5;
 
   multiLandmarks.forEach((landmarks) => {
-    const drawLine = (p1, p2) => {
+    const connect = (a, b) => {
       lmCtx.beginPath();
-      lmCtx.moveTo(landmarks[p1].x * lmCanvas.width, landmarks[p1].y * lmCanvas.height);
-      lmCtx.lineTo(landmarks[p2].x * lmCanvas.width, landmarks[p2].y * lmCanvas.height);
+      lmCtx.moveTo(landmarks[a].x * lmCanvas.width, landmarks[a].y * lmCanvas.height);
+      lmCtx.lineTo(landmarks[b].x * lmCanvas.width, landmarks[b].y * lmCanvas.height);
       lmCtx.stroke();
     };
+    for(let i=0; i<4; i++) connect(i, i+1);
+    for(let i=5; i<8; i++) connect(i, i+1);
+    for(let i=9; i<12; i++) connect(i, i+1);
+    for(let i=13; i<16; i++) connect(i, i+1);
+    for(let i=17; i<20; i++) connect(i, i+1);
+    connect(0, 5); connect(5, 9); connect(9, 13); connect(13, 17); connect(0, 17);
 
-    for(let i=0; i<4; i++) drawLine(i, i+1);
-    for(let i=5; i<8; i++) drawLine(i, i+1);
-    for(let i=9; i<12; i++) drawLine(i, i+1);
-    for(let i=13; i<16; i++) drawLine(i, i+1);
-    for(let i=17; i<20; i++) drawLine(i, i+1);
-    
-    drawLine(0, 5); drawLine(5, 9); drawLine(9, 13); drawLine(13, 17); drawLine(0, 17);
-
-    landmarks.forEach((pt) => {
+    landmarks.forEach((pt, idx) => {
       lmCtx.beginPath();
-      lmCtx.arc(pt.x * lmCanvas.width, pt.y * lmCanvas.height, 4, 0, Math.PI*2);
-      lmCtx.fillStyle = 'var(--cyan)';
+      lmCtx.arc(pt.x * lmCanvas.width, pt.y * lmCanvas.height, idx === 8 ? 5 : 2.5, 0, Math.PI*2);
+      lmCtx.fillStyle = idx === 8 ? '#00f0ff' : 'rgba(0,240,255,0.8)';
       lmCtx.fill();
     });
   });
 }
 
-let lastModeState = 'idle';
+let trackingPrevGesture = 'idle';
 
-function processDualHandTracking(multiLandmarks, multiHandedness) {
-  STATE.handsDetected = multiLandmarks.length;
-  
-  // Har doim yetakchi / birinchi qo'l ma'lumotlaridan chizish koordinatalarini ajratish
+function processSpatialFrames(multiLandmarks) {
+  // Hand 0 Control Logic (Primary Actions)
   const primaryHand = multiLandmarks[0];
   const indexTip = primaryHand[8];
   const wrist = primaryHand[0];
 
-  const currentSpan = getDistance(wrist, primaryHand[5]);
-  const calculatedZ = (currentSpan - 0.12) * 8;
-  STATE.currentDepth = calculatedZ;
+  const invX = 1 - indexTip.x;
+  const invY = indexTip.y;
 
-  // Ekran koordinatalari inversiyasi (Kamera ko'zgusi effekti to'g'rilangan)
-  const mirroredX = 1 - indexTip.x;
-  const mirroredY = indexTip.y;
+  const cursorEl = document.getElementById('finger-cursor');
+  cursorEl.style.left = `${invX * window.innerWidth}px`;
+  cursorEl.style.top = `${invY * window.innerHeight}px`;
+  cursorEl.style.display = 'block';
 
-  const cursor = document.getElementById('finger-cursor');
-  cursor.style.left = `${mirroredX * window.innerWidth}px`;
-  cursor.style.top = `${mirroredY * window.innerHeight}px`;
-  cursor.style.display = 'block';
+  const currentSpan = calculateDistance(wrist, primaryHand[5]);
+  const zDepth = (currentSpan - 0.11) * 8;
+  ENGINE_STATE.currentDepth = zDepth;
 
-  // Ikkala qo'l holatining umumiy integratsiyasi
-  let detectedGesture = detectHandGesture(primaryHand);
+  const mainGesture = identifyGesture(primaryHand);
+
+  // TWO HANDED ROTATION DETECTOR (Ochiq kaft ixtiyoriy tomonga harakatlanganda obyekti aylantirish)
+  let rotationTriggered = false;
   
-  // Agar ochiq kaft holati aniqlansa - Aylantirish (Rotation) rejimini faollashtirish
-  if (detectedGesture === 'open_palm') {
-    detectedGesture = 'rotate';
-  }
-
-  updateSystemModeUI(detectedGesture);
-
-  // REAL-TIME SPATIAL GESTURE INTERACTIONS
-  if (detectedGesture === 'draw') {
-    // To'g'ridan-to'g'ri ko'rsatkich barmoq ostida aniq chizish uchun unproject koordinatalari uzatiladi
-    const accuratePoint = get3DCoordinatesFromScreen(mirroredX, mirroredY, calculatedZ);
-    STATE.drawPoints.push(accuratePoint);
-    drawLivePreviewStroke(STATE.drawPoints);
-  } else if (lastModeState === 'draw' && STATE.drawPoints.length > 1) {
-    bakeDrawStrokeToScene();
-  }
-
-  // Obyektlarni harakatlantirish (Grab)
-  if (detectedGesture === 'grab') {
-    if (!STATE.activeObject) {
-      STATE.activeObject = selectSpatialMesh(mirroredX, mirroredY);
+  multiLandmarks.forEach((handLM, handIdx) => {
+    const handGesture = identifyGesture(handLM);
+    if (handGesture === 'open' && ENGINE_STATE.spatialObjects.length > 0) {
+      rotationTriggered = true;
+      setSystemModeUI('rotate');
+      
+      const currentHandPos = { x: 1 - handLM[8].x, y: handLM[8].y };
+      const prevPos = ENGINE_STATE.lastHandPositions[handIdx];
+      
+      if (prevPos) {
+        const deltaX = currentHandPos.x - prevPos.x;
+        const deltaY = currentHandPos.y - prevPos.y;
+        
+        ENGINE_STATE.spatialObjects.forEach(obj => {
+          obj.rotation.y += deltaX * 4.5;
+          obj.rotation.x += deltaY * 4.5;
+        });
+      }
+      ENGINE_STATE.lastHandPositions[handIdx] = currentHandPos;
     } else {
-      const targetPos = get3DCoordinatesFromScreen(mirroredX, mirroredY, calculatedZ);
-      STATE.activeObject.position.lerp(targetPos, 0.2);
+      ENGINE_STATE.lastHandPositions[handIdx] = null;
     }
-  } 
-  // Ochiq kaft harakati orqali predmetni o'z o'qi atrofida aylantirish (User talabi bo'yicha)
-  else if (detectedGesture === 'rotate') {
-    if (!STATE.activeObject) {
-      STATE.activeObject = selectSpatialMesh(mirroredX, mirroredY);
+  });
+
+  if (!rotationTriggered) {
+    setSystemModeUI(mainGesture);
+    
+    if (mainGesture === 'draw') {
+      // To'g'ridan to'g'ri barmoq uchi koordinatasiga chizish proeksiyasi
+      ENGINE_STATE.drawPoints.push(getSpatialCoordinates(invX, invY, zDepth));
+      renderLiveDrawingStroke(ENGINE_STATE.drawPoints);
+    } else if (trackingPrevGesture === 'draw' && ENGINE_STATE.drawPoints.length > 1) {
+      saveDrawingStroke();
+    }
+
+    if (mainGesture === 'grab') {
+      if (!ENGINE_STATE.activeObject) {
+        ENGINE_STATE.activeObject = selectSpatialObject(invX, invY);
+      } else {
+        const targetPos = getSpatialCoordinates(invX, invY, zDepth);
+        ENGINE_STATE.activeObject.position.lerp(targetPos, 0.3);
+      }
     }
     
-    if (STATE.activeObject && STATE.prevHandData[0]) {
-      const prevX = 1 - STATE.prevHandData[0][8].x;
-      const prevY = STATE.prevHandData[0][8].y;
-      
-      const dx = mirroredX - prevX;
-      const dy = mirroredY - prevY;
-
-      // Qo'l qaysi tomonga harakatlansa, predmet ham xuddi o'sha tomonga aylanadi
-      STATE.activeObject.rotation.y += dx * 6.5;
-      STATE.activeObject.rotation.x += dy * 6.5;
-    }
-  }
-  // Masshtablashtirish (Pinch)
-  else if (detectedGesture === 'pinch') {
-    if (!STATE.activeObject) {
-      STATE.activeObject = selectSpatialMesh(mirroredX, mirroredY);
-      if (STATE.activeObject) {
-        STATE.scaleMatrix = STATE.activeObject.scale.clone();
-        STATE.initialPinchDist = getDistance(primaryHand[4], primaryHand[8]);
-      }
-    } else if (STATE.scaleMatrix) {
-      const currentDist = getDistance(primaryHand[4], primaryHand[8]);
-      const ratio = currentDist / STATE.initialPinchDist;
-      STATE.activeObject.scale.copy(STATE.scaleMatrix).multiplyScalar(ratio);
+    if (mainGesture !== 'grab' && ENGINE_STATE.activeObject) {
+      ENGINE_STATE.activeObject = null;
     }
   }
 
-  if (detectedGesture !== 'grab' && detectedGesture !== 'pinch' && detectedGesture !== 'rotate' && STATE.activeObject) {
-    STATE.activeObject = null;
-    STATE.scaleMatrix = null;
-  }
-
-  STATE.prevHandData[0] = JSON.parse(JSON.stringify(primaryHand));
-  lastModeState = detectedGesture;
+  trackingPrevGesture = mainGesture;
 }
 
-function drawLivePreviewStroke(pts) {
+function renderLiveDrawingStroke(pts) {
   if (liveLinePreview) scene.remove(liveLinePreview);
-  const geometry = new THREE.BufferGeometry().setFromPoints(pts);
-  liveLinePreview = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: STATE.activeColor, linewidth: 4 }));
+  const geo = new THREE.BufferGeometry().setFromPoints(pts);
+  liveLinePreview = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: ENGINE_STATE.activeColor, linewidth: 4 }));
   scene.add(liveLinePreview);
 }
 
-function bakeDrawStrokeToScene() {
+function saveDrawingStroke() {
   if (liveLinePreview) { scene.remove(liveLinePreview); liveLinePreview = null; }
-  
-  const geometry = new THREE.BufferGeometry().setFromPoints(STATE.drawPoints);
-  const permanentLine = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: STATE.activeColor, linewidth: 3 }));
-  scene.add(permanentLine);
-  
-  STATE.spatialObjects.push(permanentLine);
-  STATE.shapesCount++;
-  STATE.drawPoints = [];
+  const geo = new THREE.BufferGeometry().setFromPoints(ENGINE_STATE.drawPoints);
+  const strokeMesh = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: ENGINE_STATE.activeColor, linewidth: 3 }));
+  scene.add(strokeMesh);
+  ENGINE_STATE.spatialObjects.push(strokeMesh);
+  ENGINE_STATE.shapesCount++;
+  ENGINE_STATE.drawPoints = [];
   syncHUD();
 }
 
-function updateSystemModeUI(mode) {
+function setSystemModeUI(mode) {
   const el = document.getElementById('mode-indicator');
   el.className = '';
   el.textContent = mode.toUpperCase();
-  el.classList.add(`mode-${mode}`);
-  STATE.mode = mode;
+  if (mode === 'idle') el.classList.add('mode-idle');
+  if (mode === 'draw') el.classList.add('mode-draw');
+  if (mode === 'grab') el.classList.add('mode-grab');
+  if (mode === 'pinch') el.classList.add('mode-pinch');
+  if (mode === 'rotate') el.classList.add('mode-rotate');
+  ENGINE_STATE.mode = mode;
 }
 
 function syncHUD() {
   document.getElementById('val-fps').textContent = currentFps;
-  document.getElementById('val-shapes').textContent = STATE.shapesCount;
-  document.getElementById('val-hands').textContent = STATE.handsDetected;
-  document.getElementById('val-depth').textContent = STATE.currentDepth.toFixed(2);
-  document.getElementById('val-active-obj').textContent = STATE.activeObject ? "NEURAL MESH" : "YO'Q";
+  document.getElementById('val-shapes').textContent = ENGINE_STATE.shapesCount;
+  document.getElementById('val-hands').textContent = ENGINE_STATE.handsDetected;
+  document.getElementById('val-depth').textContent = ENGINE_STATE.currentDepth.toFixed(2);
+  document.getElementById('val-active-obj').textContent = ENGINE_STATE.activeObject ? "MASH" : "YO'Q";
 }
 
 function clearSpatialCanvas() {
-  STATE.spatialObjects.forEach(obj => scene.remove(obj));
-  STATE.spatialObjects = [];
-  STATE.shapesCount = 0;
+  ENGINE_STATE.spatialObjects.forEach(obj => scene.remove(obj));
+  ENGINE_STATE.spatialObjects = [];
+  ENGINE_STATE.shapesCount = 0;
   syncHUD();
 }
 document.getElementById('btn-clear-canvas').addEventListener('click', clearSpatialCanvas);
 
-// ─── MEDIAPIPE MULTIHAND TRACKING ENGINE INITIALIZATION ──────────────────
-function initMediaPipeTracking(videoEl) {
+// ─── INITIALIZE COMPUTER VISION PIPELINE ─────────────────────────────────
+function initMediaPipe(videoEl) {
   const hands = new Hands({
     locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
   });
 
   hands.setOptions({
-    maxNumHands: 2, // Ikki qo'lli boshqaruv quvvati faollashtirildi
+    maxNumHands: 2, // Ikkita qo'lli mukammal boshqaruv
     modelComplexity: 1,
-    minDetectionConfidence: 0.78,
-    minTrackingConfidence: 0.78
+    minDetectionConfidence: 0.7,
+    minTrackingConfidence: 0.7
   });
 
   hands.onResults((results) => {
-    if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+    ENGINE_STATE.handsDetected = results.multiHandLandmarks ? results.multiHandLandmarks.length : 0;
+    
+    if (ENGINE_STATE.handsDetected > 0) {
       document.getElementById('val-conf').textContent = (results.multiHandedness[0].score * 100).toFixed(0) + '%';
       
-      if (!STATE.calibrated) {
-        STATE.calibCounter++;
-        if (STATE.calibCounter > 15) {
-          STATE.calibrated = true;
+      if (!ENGINE_STATE.calibrated) {
+        ENGINE_STATE.calibCounter++;
+        if (ENGINE_STATE.calibCounter > 25) {
+          ENGINE_STATE.calibrated = true;
           document.getElementById('calibration').classList.add('hidden');
+          speakSystem("Tizim muvaffaqiyatli kalibratsiya qilindi.");
         }
       } else {
-        processDualHandTracking(results.multiHandLandmarks, results.multiHandedness);
+        processSpatialFrames(results.multiHandLandmarks);
       }
-      drawHandSkeletons(results.multiHandLandmarks);
+      drawHandOverlay(results.multiHandLandmarks);
     } else {
-      drawHandSkeletons(null);
+      drawHandOverlay(null);
       document.getElementById('finger-cursor').style.display = 'none';
-      STATE.handsDetected = 0;
     }
     syncHUD();
   });
@@ -887,14 +843,14 @@ function initMediaPipeTracking(videoEl) {
   cameraInstance.start();
 }
 
-// ─── HARDWARE ACQUISITION AND SYSTEM STARTUP ─────────────────────────────
+// ─── SYSTEM LIFECYCLE ACTIVATION ─────────────────────────────────────────
 document.getElementById('start-btn').addEventListener('click', async () => {
   const keyInput = document.getElementById('groq-key-input').value.trim();
   if (!keyInput) {
-    alert("Tizim ishlashi uchun Groq API kalitini kiritishingiz shart!");
+    alert("Iltimos, Groq API kalitini kiriting.");
     return;
   }
-  STATE.groqApiKey = keyInput;
+  GROQ_API_KEY = keyInput;
 
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -904,17 +860,18 @@ document.getElementById('start-btn').addEventListener('click', async () => {
     document.getElementById('boot-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     
-    initMediaPipeTracking(video);
+    initMediaPipe(video);
     initVoiceCommandEngine();
     initAIImagePipeline();
+    speakSystem("Stark spatial tizimi faollashtirildi.");
   } catch (err) {
     document.getElementById('perm-error').style.display = 'flex';
   }
 });
 
-// ─── GRAPHICS ANIMATION RUNTIME LOOP ─────────────────────────────────────
-function renderLoop(timestamp) {
-  requestAnimationFrame(renderLoop);
+// ─── RUNTIME GRAPHICS RENDERING SYSTEM LOOP ──────────────────────────────
+function loop(timestamp) {
+  requestAnimationFrame(loop);
   
   fpsCount++;
   if (timestamp - lastFpsUpdate >= 1000) {
@@ -923,16 +880,27 @@ function renderLoop(timestamp) {
     lastFpsUpdate = timestamp;
   }
 
-  // Neyron obyektlar turg'un holatda avtomatik asta-sekin aylanib turishi
-  STATE.spatialObjects.forEach(obj => {
-    if(!STATE.activeObject && STATE.mode === 'idle') {
+  // Faqat ochiq qo'l bilan manipulyatsiya bo'lmayotgan holatda sekin o'z o'qi atrofida aylanish
+  if (ENGINE_STATE.mode !== 'rotate' && !ENGINE_STATE.activeObject) {
+    ENGINE_STATE.spatialObjects.forEach(obj => {
       obj.rotation.y += 0.003;
-    }
-  });
+    });
+  }
 
   renderer.render(scene, camera);
 }
-requestAnimationFrame(renderLoop);
+
+function updateWindowSize() {
+  lmCanvas.width = window.innerWidth;
+  lmCanvas.height = window.innerHeight;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', updateWindowSize);
+updateWindowSize();
+
+requestAnimationFrame(loop);
 
 </script>
 </body>
